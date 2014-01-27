@@ -18,6 +18,30 @@ trait AbstractScopedState[T]{
   }
 }
 
+object AbstractScopedState{
+  trait IgnoreUpdate[T] extends AbstractScopedState[T]{
+    override def doWith[R](t: T)(r: => R): R =
+      if(ignoreDo > 0) {
+        ignoreDo -= 1
+        r
+      }
+      else super.doWith(t)(r)
+
+    /** ignore `doWith` state update
+      *  numeric state
+      */
+    protected var ignoreDo = 0
+
+    def ignoring[R](times: Int)(f: => R): R = {
+      val old = ignoreDo
+      ignoreDo += times
+      val res = f
+      ignoreDo = old
+      res
+    }
+  }
+}
+
 trait ScopedInThreadState[T] extends AbstractScopedState[T]{
   private val _state = new ThreadLocal[T]{
     override def initialValue(): T = default
