@@ -3,9 +3,9 @@ package feh.util
 import feh.util.AbstractScopedState.IgnoreUpdate
 
 trait PrintIndents {
-  protected class Param(val b: StringBuilder,
-                        protected[PrintIndents] val depthState: ScopedState[Int] with IgnoreUpdate[Int],
-                        protected[PrintIndents] var indent: Int)
+  class Param protected[PrintIndents] (val b: StringBuilder,
+                                       protected[PrintIndents] val depthState: ScopedState[Int] with IgnoreUpdate[Int],
+                                       protected[PrintIndents] var indent: Int)
   {
     def withDepth[R](d: Int => Int) = depthState.doWith[R](d(depthState.get)) _
     def mkString = b.mkString
@@ -20,10 +20,7 @@ trait PrintIndents {
     p.b ++= " " * (p.indent * p.depthState.get) + str + "\n"
   }
 
-  def nextDepth[R](f: => R)(implicit p: Param) = {
-    println(s"depth ${p.depthState.get}")
-    p.withDepth(1+)(f)
-  }
+  def nextDepth[R](f: => R)(implicit p: Param) = p.withDepth(1+)(f)
 
   protected def ignoreDepthIncrease[R](n: Int)(f: => R)(implicit p: Param) = p.depthState.ignoring[R](n)(f)
 
