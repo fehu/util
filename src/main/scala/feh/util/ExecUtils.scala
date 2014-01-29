@@ -7,13 +7,10 @@ import org.apache.commons.io.IOUtils
 object ExecUtils extends ExecUtils
 trait ExecUtils {
   private def exec(args: Seq[String]): Process = {
-    println(s"## executing command: $args")
+    println(s"## executing command: ${args.mkString(" ")}")
     sys.runtime.exec(args.toArray).register
   }
-  def exec(cmd: String, args: String*): Process = {
-    println(s"## executing command: $cmd, $args")
-    exec(cmd +: args)
-  }
+  def exec(cmd: String, args: String*): Process = exec(cmd +: args)
 
   def sbt(cmd: String, args: String*) = exec("sbt" +: cmd +: args :+ "-no-colors")
 

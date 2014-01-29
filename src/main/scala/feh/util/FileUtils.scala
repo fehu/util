@@ -121,6 +121,10 @@ trait FileUtils {
         stream.flush()
     }
 
+    object write{
+      def utf8(str: String): FileOutputStream => Unit = write(str.getBytes("UTF-8"))
+    }
+
     implicit def fileBuilderToFileWrapper(b: FileBuilder) = b.dir
     case class FileBuilder(dirPath: Path, isTemporary: Boolean)(val dir: JFile = dirPath.file){
       assert(dir.exists() && dir.isDirectory && dir.canWrite, "directory doesn't exist or isn't accessible")
