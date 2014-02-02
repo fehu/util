@@ -3,6 +3,7 @@ package feh.util
 import scala.collection.{TraversableLike, mutable}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
+import java.awt.Color
 
 trait Util extends RandomWrappers{
   type I[T] = T => T
@@ -169,7 +170,13 @@ trait Util extends RandomWrappers{
   def tuple[A, T1, T2](t1: A => T1, t2: A => T2): A => (T1, T2) = a => (t1(a), t2(a))
 
   implicit class StringWrapper(str: String){
-    def %(args: Any*) = str format args
+    def %(args: Any*) = str.format(args: _*)
+    def apostrophied = "'" + str + "'"
+    def quoted = "\"" + str + "\""
+  }
+
+  implicit class ColorWrapper(c: Color){
+    def hexRGB = "#%02x%02x%02x" % (c.getRed, c.getGreen, c.getBlue)
   }
 }
 
