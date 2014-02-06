@@ -175,7 +175,29 @@ trait Util extends RandomWrappers{
     def quoted = "\"" + str + "\""
   }
 
+  object color{
+    lazy val byName = Map(
+      "black" -> Color.black,
+      "blue" -> Color.blue,
+      "cyan" -> Color.cyan,
+      "darkGray" -> Color.darkGray,
+      "gray" -> Color.gray,
+      "green" -> Color.green,
+      "lightGray" -> Color.lightGray,
+      "magenta" -> Color.magenta,
+      "orange" -> Color.orange,
+      "pink" -> Color.pink,
+      "red" -> Color.red,
+      "white" -> Color.white,
+      "yellow" -> Color.yellow
+    )
+    lazy val names = byName.map(_.swap).toMap
+  }
+
+
+  
   implicit class ColorWrapper(c: Color){
+    def stringRGB = color.names.get(c).getOrElse(s"[r=${c.getRed},g=${c.getGreen},b=${c.getBlue}]")
     def hexRGB = "#%02x%02x%02x" % (c.getRed, c.getGreen, c.getBlue)
   }
 }
