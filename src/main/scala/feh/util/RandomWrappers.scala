@@ -6,7 +6,9 @@ import scala.util.Random
 trait RandomWrappers {
   implicit class SeqLikeWrapper[+A, +Repr](seq: SeqLike[A, Repr]){
     def randomChoice: A = seq(Random.nextInt(seq.length))
+    def randomOrder(): Seq[A] = seq.toSeq.map(Random.nextInt() -> _).sortBy(_._1).map(_._2)
   }
+
   implicit class MapLikeWrapper[A, +B, +This <: scala.collection.MapLike[A, B, This] with scala.collection.Map[A, B]](mlike: scala.collection.MapLike[A, B, This]){
     def randomChoose: (A, B) = {
       val k = mlike.keys.toList.randomChoice
