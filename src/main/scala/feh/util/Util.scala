@@ -4,6 +4,7 @@ import scala.collection.{TraversableLike, mutable}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 import java.awt.Color
+import scala.util.matching.Regex
 
 trait Util extends RandomWrappers{
   type I[T] = T => T
@@ -200,6 +201,11 @@ trait Util extends RandomWrappers{
     def stringRGB = color.names.get(c).getOrElse(s"[r=${c.getRed},g=${c.getGreen},b=${c.getBlue}]")
     def hexRGB = "#%02x%02x%02x" % (c.getRed, c.getGreen, c.getBlue)
   }
+
+  implicit class RegexMatcher(reg: Regex) {
+    def matches(s: String) = reg.pattern.matcher(s).matches
+  }
+
 }
 
 case object up extends Exception
