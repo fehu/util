@@ -26,7 +26,7 @@ class ScalaRefactoringSourceStringGenerator extends SourceStringGenerator
   override def print(t: Tree, ctx: PrintingContext): Fragment =
     if(t.hasExistingCode)
       reusingPrinter.dispatchToPrinter(t, ctx)
-    else if(t.hasNoCode)
+    else if(t != null && !isEmptyTree(t))
       sourceCodePrinter.dispatchToPrinter(t, ctx)
     else
       EmptyFragment

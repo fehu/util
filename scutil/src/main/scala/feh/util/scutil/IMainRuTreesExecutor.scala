@@ -2,8 +2,9 @@ package feh.util.scutil
 
 import scala.tools.nsc.interpreter.IMain
 import scala.reflect.runtime.{ universe => ru }
-import scala.tools.nsc.Settings
+import scala.tools.nsc.{interpreter, Settings}
 import feh.util._
+import scala.tools
 
 
 object IMainRuTreesExecutor{
@@ -13,13 +14,13 @@ object IMainRuTreesExecutor{
 trait IMainRuTreesExecutor{
   protected val iMain: IMain
   protected lazy val global = iMain.global
+  protected lazy val ruToolbox = tools.reflect.ToolBox(ru.rootMirror).mkToolBox()
 
   protected def preprocessTrees: Seq[ru.Tree] => Seq[ru.Tree]
   protected def stringify: Seq[ru.Tree] => String
 
-  @deprecated("temporary")
-  def execStr(str: String) = ??? // todo should parse string to tree and run execute on it
-  def exec(expr: ru.Expr[_]*) = execute(expr.map(_.tree): _*)
+  def exec(str: String): interpreter.IR.type#Result = execute(ruToolbox.parse(str))
+  def exec(expr: ru.Expr[_]*): interpreter.IR.type#Result = execute(expr.map(_.tree): _*)
   def execChildren(expr: ru.Expr[_]*) = execute(expr.flatMap(_.tree.children): _*)
   def execute(tr: ru.Tree*) = iMain.interpret(stringify compose preprocessTrees apply tr)
 
@@ -84,13 +85,14 @@ object IMainRuTreesExecutorApp extends App {
     })
 
 
-    execStr("println(bar)")
+    exec("val ttt = 888")
 
     println("bar = " + valueOf("bar"))
     println("OA = " + valueOf("OA"))
 
     println("AA symb = " + symbolOfType("AA"))
     println("A tree = " + treeOfType("A"))
+    println("ttt value = " + valueOf("ttt"))
   }
 
   start()
