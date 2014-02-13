@@ -9,11 +9,9 @@ object Build extends sbt.Build {
 
   val buildSettings = Defaults.defaultSettings ++ Seq (
     scalaVersion  := ScalaVersion,
+    scalacOptions in (Compile, doc) ++= Seq("-diagrams")
 //    scalacOptions ++= Seq("-explaintypes"),
 //    scalacOptions ++= Seq("-deprecation"),
-    scalacOptions in (Compile, doc) ++= Seq("-diagrams", "-diagrams-debug")
-//     resolvers += Release.spray,
-//     mainClass in Compile := Some("")
   )
 
   object Resolvers{
@@ -33,10 +31,24 @@ object Build extends sbt.Build {
       lazy val ioCommons = "commons-io" % "commons-io" % "2.4"
     }
 
-    lazy val scalaCompiler = "org.scala-lang" % "scala-compiler" % ScalaVersion
+    object scala{
+      lazy val compiler = "org.scala-lang" % "scala-compiler" % ScalaVersion
+      lazy val swing = "org.scala-lang" % "scala-swing" % ScalaVersion
+      lazy val reflectApi = "org.scala-lang" % "scala-reflect" % ScalaVersion
+    }
+
     lazy val treehugger = "com.eed3si9n" %% "treehugger" % "0.3.0"
     lazy val scalaRefactoring = "org.scala-refactoring" %% "org.scala-refactoring" % "0.6.2-SNAPSHOT"
   }
+
+  val publishLocalAll = TaskKey[Unit]("publish-all-local")
+
+  lazy val rootSettings = buildSettings ++ Seq(
+    publishLocalAll <<= state map {
+      st =>
+        Build.projects.foreach(p => Project.runTask(publishLocal in p, st))
+    }
+  )
 
   import Dependencies._
   import Resolvers._
@@ -44,12 +56,12 @@ object Build extends sbt.Build {
   lazy val util = Project(
     id = "util",
     base = file("."),
-    settings = buildSettings ++ Seq(
+    settings = rootSettings ++ Seq(
       organization  := "feh",
       version := MainVersion,
       libraryDependencies += Apache.ioCommons
     )
-  ).settings(ideaExcludeFolders := ".idea" :: ".idea_modules" :: Nil)
+  ) .settings(ideaExcludeFolders := ".idea" :: ".idea_modules" :: Nil)
 
   lazy val scUtil = Project(
     id = "scala-compiler-utils",
@@ -58,7 +70,7 @@ object Build extends sbt.Build {
       organization  := "feh.util",
       version := "0.1",
       resolvers += Snapshot.sonatype,
-      libraryDependencies ++= Seq(scalaCompiler, scalaRefactoring)
+      libraryDependencies ++= Seq(scala.compiler, scalaRefactoring, scala.swing)
     )
   ) dependsOn util
 

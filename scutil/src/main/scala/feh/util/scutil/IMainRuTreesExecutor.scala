@@ -52,8 +52,6 @@ trait IMainProvider {
 }
 
 trait DefaultIMain extends IMainProvider{
-  self: IMainRuTreesExecutor =>
-  
   protected lazy val iMainSettings = new Settings() $${
     _.usejavacp.value = true
   }

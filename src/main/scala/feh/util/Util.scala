@@ -206,6 +206,14 @@ trait Util extends RandomWrappers{
     def matches(s: String) = reg.pattern.matcher(s).matches
   }
 
+  object bool{
+    def allOf[T](f: (T => Boolean)*): T => Boolean = t => f.forall(_(t))
+    def oneOf[T](f: (T => Boolean)*): T => Boolean = t => f.exists(_(t))
+  }
+
+
+//  implicit class BooleanResultFunction1Wrapper[T](bfunc: T => )
+
 }
 
 case object up extends Exception
