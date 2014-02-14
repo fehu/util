@@ -70,7 +70,7 @@ object Build extends sbt.Build {
       organization  := "feh.util",
       version := "0.1",
       resolvers += Snapshot.sonatype,
-      libraryDependencies ++= Seq(scala.compiler, scalaRefactoring, scala.swing)
+      libraryDependencies ++= Seq(scala.compiler, scalaRefactoring)
     )
   ) dependsOn util
 

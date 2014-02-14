@@ -8,7 +8,7 @@ import scala.tools
 
 
 object IMainRuTreesExecutor{
-  def apply(): IMainRuTreesExecutor with IMainProvider = new IMainRuTreesExecutorImpl
+  def apply(): IMainRuTreesExecutor with IMainProvider = new DefaultIMainRuTreesExecutorImpl
 }
 
 trait IMainRuTreesExecutor{
@@ -47,6 +47,7 @@ trait IMainRuTreesExecutor{
 trait IMainProvider {
   protected def iMain: IMain
 
+  def initialized = iMain.isInitializeComplete
   def initIMainSync() = iMain.initializeSynchronous()
   def initIMainAsync(done: => Unit) = iMain.initialize(done)
 }
@@ -58,12 +59,13 @@ trait DefaultIMain extends IMainProvider{
   protected lazy val iMain = new IMain(iMainSettings)
 }
 
-class IMainRuTreesExecutorImpl extends IMainRuTreesExecutor with DefaultIMain{
+abstract class DefaultIMainRuTreesExecutor extends IMainRuTreesExecutor{
   protected def preprocessTrees = identity
   protected lazy val sourceGen = SourceStringGenerator()
   protected def stringify = sourceGen.asString(_, "\n")
 }
 
+class DefaultIMainRuTreesExecutorImpl extends DefaultIMainRuTreesExecutor with DefaultIMain
 
 object IMainRuTreesExecutorApp extends App {
   val executor = IMainRuTreesExecutor()
