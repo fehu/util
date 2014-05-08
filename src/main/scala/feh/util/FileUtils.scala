@@ -19,8 +19,8 @@ trait FileUtils {
   }
 
   implicit class FileWrapper(file: JFile){
-    def withOutputStream[R](f: FileOutputStream => R): Try[R] = {
-      val stream = new FileOutputStream(file)
+    def withOutputStream[R](f: FileOutputStream => R, append: Boolean = false): Try[R] = {
+      val stream = new FileOutputStream(file, append)
       Try(f(stream)) $$ { _ =>
         stream.close()
       }
