@@ -22,26 +22,27 @@ trait IMainRuTreesExecutor{
   def exec(str: String): interpreter.IR.type#Result = execute(ruToolbox.parse(str))
   def exec(expr: ru.Expr[_]*): interpreter.IR.type#Result = execute(expr.map(_.tree): _*)
   def execChildren(expr: ru.Expr[_]*) = execute(expr.flatMap(_.tree.children): _*)
-  def execute(tr: ru.Tree*) = iMain.interpret(stringify compose preprocessTrees apply tr)
+  def execute(tr: ru.Tree*) = iMain.interpret(stringify compose preprocessTrees apply tr) // see iMain.Request()
 
   protected def findDefinedNames(name: String) = iMain.allDefinedNames.filter(_.decoded == name)
-  protected def lastRequestForName(name: String) = {
-    val reqs = findDefinedNames(name).flatMap(iMain.requestForName)
-    if(reqs.nonEmpty) Some(reqs.maxBy(_.reqId)) else None
-  }
-  protected def eqStringOrIw(symbName: String, testName: String) =
-    symbName == testName || symbName == ("iw$" + testName)
-  protected def treeOf(name: String, filter: global.Symbol => Boolean) =
-    lastRequestForName(name).flatMap(_.trees.find(_.symbol |> {
-      symb =>
-        filter(symb.asInstanceOf[global.Symbol]) && eqStringOrIw(symb.nameString, name)
-    }))
+  //todo: use prevRequestList
+//  protected def lastRequestForName(name: String) = {
+//    val reqs = findDefinedNames(name).flatMap(iMain.requestForName)
+//    if(reqs.nonEmpty) Some(reqs.maxBy(_.reqId)) else None
+//  }
+//  protected def eqStringOrIw(symbName: String, testName: String) =
+//    symbName == testName || symbName == ("iw$" + testName)
+//  protected def treeOf(name: String, filter: global.Symbol => Boolean) =
+//    lastRequestForName(name).flatMap(_.trees.find(_.symbol |> {
+//      symb =>
+//        filter(symb.asInstanceOf[global.Symbol]) && eqStringOrIw(symb.nameString, name)
+//    }))
 
   def valueOf(name: String) = iMain.valueOfTerm(name)
   def symbolOfTerm(name: String) = iMain.symbolOfTerm(name)
   def symbolOfType(name: String) = iMain.symbolOfType(name)
-  def treeOfTerm(name: String) = treeOf(name, _.isTerm)
-  def treeOfType(name: String) = treeOf(name, _.isType)
+//  def treeOfTerm(name: String) = treeOf(name, _.isTerm)
+//  def treeOfType(name: String) = treeOf(name, _.isType)
 }
 
 trait IMainProvider {
@@ -91,7 +92,7 @@ object IMainRuTreesExecutorApp extends App {
     println("OA = " + valueOf("OA"))
 
     println("AA symb = " + symbolOfType("AA"))
-    println("A tree = " + treeOfType("A"))
+//    println("A tree = " + treeOfType("A"))
     println("ttt value = " + valueOf("ttt"))
   }
 

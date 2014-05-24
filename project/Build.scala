@@ -38,7 +38,10 @@ object Build extends sbt.Build {
     }
 
     lazy val treehugger = "com.eed3si9n" %% "treehugger" % "0.3.0"
-    lazy val scalaRefactoring = "org.scala-refactoring" %% "org.scala-refactoring" % "0.6.2-SNAPSHOT"
+    def scalaRefactoring(scalaVersion: String) = scalaVersion match{
+      case v if v startsWith "2.10" => "org.scala-refactoring" %% "org.scala-refactoring" % "0.6.2-SNAPSHOT"
+      case v if v startsWith "2.11" => "de.sciss" % "scalarefactoring_2.11" % "0.1.0"
+    }
   }
 
   val publishLocalAll = TaskKey[Unit]("publish-all-local")
@@ -70,8 +73,9 @@ object Build extends sbt.Build {
       organization  := "feh.util",
       version := "0.1",
       resolvers += Snapshot.sonatype,
-      libraryDependencies <+= scalaVersion(scala.compiler),
-      libraryDependencies ++= Seq(scalaRefactoring)
+      libraryDependencies <++= scalaVersion {sv =>
+        Seq(scala.compiler _, scalaRefactoring _).map(_(sv))
+      }
     )
   ) dependsOn util
 
