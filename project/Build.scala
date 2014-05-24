@@ -4,11 +4,11 @@ import org.sbtidea.SbtIdeaPlugin._
 
 object Build extends sbt.Build {
 
-  val ScalaVersion = "2.10.3"
+  val ScalaVersions = Seq("2.10.3", "2.11.1")
   val MainVersion = "1.0.2"
 
   val buildSettings = Defaults.defaultSettings ++ Seq (
-    scalaVersion  := ScalaVersion,
+    crossScalaVersions  := ScalaVersions,
     scalacOptions in (Compile, doc) ++= Seq("-diagrams")
 //    scalacOptions ++= Seq("-explaintypes"),
 //    scalacOptions ++= Seq("-deprecation"),
@@ -32,9 +32,9 @@ object Build extends sbt.Build {
     }
 
     object scala{
-      lazy val compiler = "org.scala-lang" % "scala-compiler" % ScalaVersion
-      lazy val swing = "org.scala-lang" % "scala-swing" % ScalaVersion
-      lazy val reflectApi = "org.scala-lang" % "scala-reflect" % ScalaVersion
+      def compiler(version: String) = "org.scala-lang" % "scala-compiler" % version
+      def swing(version: String) = "org.scala-lang" % "scala-swing" % version
+      def reflectApi(version: String) = "org.scala-lang" % "scala-reflect" % version
     }
 
     lazy val treehugger = "com.eed3si9n" %% "treehugger" % "0.3.0"
@@ -70,7 +70,8 @@ object Build extends sbt.Build {
       organization  := "feh.util",
       version := "0.1",
       resolvers += Snapshot.sonatype,
-      libraryDependencies ++= Seq(scala.compiler, scalaRefactoring)
+      libraryDependencies <+= scalaVersion(scala.compiler),
+      libraryDependencies ++= Seq(scalaRefactoring)
     )
   ) dependsOn util
 
