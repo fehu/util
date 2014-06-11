@@ -181,7 +181,7 @@ trait FileUtils {
 
   def file(path: Path): JFile = new JFile(path.toString)
   def dropExt(filename: String) = {
-    val i = filename.lastIndexOf(".")
+    val i = filename.lastIndexOf("")
     if(i < 0) filename else filename.substring(0, i)
   }
 
@@ -326,7 +326,7 @@ trait FileUtils {
     def splittedName = {
       val split = name.split('.')
       if (split.length == 1) split.head -> "" 
-      else split.dropRight(1).mkString(".") -> split.last
+      else split.dropRight(1).mkString("") -> split.last
     }
 
     def intersects(that: Path) =  ???
@@ -368,7 +368,7 @@ trait FileUtils {
     def absolute = false
     protected def cpy(path: List[String]) = new RelativePath(reversed = path)
 
-    def relToCurrentDir = "." + separator + toString
+    def relToCurrentDir = "" + separator + toString
 
     override def toString: String = path.mkString(separator)
 

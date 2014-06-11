@@ -4,10 +4,14 @@ import org.sbtidea.SbtIdeaPlugin._
 
 object Build extends sbt.Build {
 
-  val ScalaVersions = Seq("2.10.3", "2.11.1")
-  val MainVersion = "1.0.2"
+  val ScalaVersions = Seq("2.11.1", "2.10.3")
+  val ScalaVersion = ScalaVersions.head
+
+  val MainVersion = "1.0.3"
 
   val buildSettings = Defaults.defaultSettings ++ Seq (
+    organization  := "feh.util",
+    scalaVersion := ScalaVersion,
     crossScalaVersions  := ScalaVersions,
     scalacOptions in (Compile, doc) ++= Seq("-diagrams")
 //    scalacOptions ++= Seq("-explaintypes"),
@@ -33,7 +37,7 @@ object Build extends sbt.Build {
 
     object scala{
       def compiler(version: String) = "org.scala-lang" % "scala-compiler" % version
-      def swing(version: String) = "org.scala-lang" % "scala-swing" % version
+      def swing(version: String) = "org.scala-lang" % "scala-swing" % version // todo: won't work for 2.11.1
       def reflectApi(version: String) = "org.scala-lang" % "scala-reflect" % version
     }
 
@@ -44,33 +48,31 @@ object Build extends sbt.Build {
     }
   }
 
-  val publishLocalAll = TaskKey[Unit]("publish-all-local")
-
-  lazy val rootSettings = buildSettings ++ Seq(
-    publishLocalAll <<= state map {
-      st =>
-        Build.projects.foreach(p => Project.runTask(publishLocal in p, st))
-    }
-  )
-
   import Dependencies._
   import Resolvers._
 
+  lazy val root = Project(
+    id = "root",
+    base = file("."),
+    settings = buildSettings ++ Seq(
+      version := MainVersion
+    )
+  ) .settings(ideaExcludeFolders := ".idea" :: ".idea_modules" :: Nil)
+    .aggregate(util, compiler)
+
   lazy val util = Project(
     id = "util",
-    base = file("."),
-    settings = rootSettings ++ Seq(
-      organization  := "feh",
+    base = file("util"),
+    settings = buildSettings ++ Seq(
       version := MainVersion,
       libraryDependencies += Apache.ioCommons
     )
-  ) .settings(ideaExcludeFolders := ".idea" :: ".idea_modules" :: Nil)
+  )
 
-  lazy val scUtil = Project(
+  lazy val compiler = Project(
     id = "scala-compiler-utils",
-    base = file("scutil"),
+    base = file("compiler"),
     settings = buildSettings ++ Seq(
-      organization  := "feh.util",
       version := "0.1",
       resolvers += Snapshot.sonatype,
       libraryDependencies <++= scalaVersion {sv =>
