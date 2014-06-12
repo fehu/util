@@ -214,6 +214,9 @@ trait Util extends RandomWrappers{
 
 //  implicit class BooleanResultFunction1Wrapper[T](bfunc: T => )
 
+  implicit class InCaseWrapper[T](t: T){
+    def inCase(test: T => Boolean) = if(test(t)) Some(t) else None
+  }
 }
 
 case object up extends Exception

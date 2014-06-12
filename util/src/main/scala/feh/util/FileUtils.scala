@@ -1,11 +1,13 @@
 package feh.util
 
-import java.io.{File => JFile, InputStream, FileOutputStream, FileInputStream}
+import java.io.{File => JFile, FilenameFilter, InputStream, FileOutputStream, FileInputStream}
 import scala.util.{Success, Try}
-import scala.collection.mutable
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
+import scala.util.matching.Regex
+import org.apache.commons.io.IOUtils
+import scala.collection.JavaConversions._
 
 object FileUtils extends FileUtils
 trait FileUtils {
@@ -16,6 +18,10 @@ trait FileUtils {
 
   implicit class StringToFileWrapper(str: String){
     def toFile: JFile = new JFile(str)
+  }
+
+  object pattern{
+    def name(pattern: Regex): JFile => Boolean = pattern matches _.name
   }
 
   implicit class FileWrapper(file: JFile){
@@ -71,7 +77,7 @@ trait FileUtils {
     def path = file.getAbsolutePath
   }
 
-  trait Reader[T]{
+  trait Reader[+T]{
     def read: InputStream => T
   }
   implicit object ByteArrayReader$ extends Reader[Array[Byte]]{
@@ -79,6 +85,10 @@ trait FileUtils {
   }
   implicit object StringReader$ extends Reader[String]{
     def read: InputStream => String = is => new String(File.readBytesFromStream(is))
+  }
+
+  implicit object LinesReader$ extends Reader[Seq[String]]{
+    def read: InputStream => List[String] = is => IOUtils.readLines(is).toList
   }
 
   import Path._
@@ -105,7 +115,7 @@ trait FileUtils {
 
   object File{
     @tailrec
-    final def readBytesFromStream(instream: InputStream, acc: ListBuffer[Byte] = ListBuffer.empty): Array[Byte] =
+    def readBytesFromStream(instream: InputStream, acc: ListBuffer[Byte] = ListBuffer.empty): Array[Byte] =
       if(instream.available > 0) readBytesFromStream(instream, acc += instream.read.toByte) else acc.toArray
 
     def read[R: Reader](is: InputStream): R = implicitly[Reader[R]].read(is)
@@ -235,6 +245,12 @@ trait FileUtils {
     def unapply(path: Path): Option[(Path, String, String)] =
       Some(path.back, path.splittedName._1, path.splittedName._2)
 
+    def group(paths: Seq[Path]): Seq[(Path, Seq[String])] = paths
+      .map{ case p / imp => (p, imp) }
+      .groupBy(_._1).toSeq.map{
+        case (p, iseq) => p -> iseq.map(_._2)
+      }
+
     /**
      * Use only for pattern matching
      */
@@ -286,6 +302,10 @@ trait FileUtils {
 
   }
 
+  object \ {
+    def unapply(path: Path): Option[(String, Path)] = path.rHeadOpt map (_ -> path.rTail)
+  }
+
   object / extends EmptyPath{
 
     def unapply(path: Path): Option[(Path, String)] = {
@@ -325,7 +345,7 @@ trait FileUtils {
     def ext = splittedName._2
     def splittedName = {
       val split = name.split('.')
-      if (split.length == 1) split.head -> "" 
+      if (split.length == 1) split.head -> ""
       else split.dropRight(1).mkString("") -> split.last
     }
 
@@ -334,8 +354,9 @@ trait FileUtils {
     def head = name
     def tail = back
 
-    def rHead = reversed.head
-    def rTail = reversed.tail
+    def rHead = reversed.last
+    def rHeadOpt = reversed.lastOption
+    def rTail = cpy(reversed.dropRight(1))
     def tails: Iterator[Path] =
       if(length == 1) Iterator(this)
       else reversed.tails.map(p => Path(p.reverse, absolute))

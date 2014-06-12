@@ -4,21 +4,24 @@ import feh.util.FileUtils
 import scala.util.Try
 import java.io.File
 
-trait ExecutableBuilder extends FileUtils{
+trait ShellJarExecBuilder extends FileUtils{
   def scriptFile(jar: Path): Try[File]
 }
 
-object ExecutableBuilderApp extends App {
+object ShellJarExecBuilder {
   val builder = sys.props.get("os.name") match{
-    case Some(str) if str.toLowerCase.contains("linux") => new BashExecutableBuilder
+    case Some(str) if str.toLowerCase.contains("linux") => new BashJarExecBuilder
   }
+}
 
+object ShellJarExecBuilderApp extends App {
+  import ShellJarExecBuilder._
   println{
     builder.scriptFile(builder.RelativePath.raw(args.toSeq))
   }
 }
 
-class BashExecutableBuilder extends ExecutableBuilder{
+class BashJarExecBuilder extends ShellJarExecBuilder{
   def scriptFile(jar: Path): Try[File] = {
     val filename = jar.reversed.head
     val scr = dropExt(filename) + ".sh"
