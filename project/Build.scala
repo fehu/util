@@ -1,6 +1,8 @@
 import sbt._
 import Keys._
 import org.sbtidea.SbtIdeaPlugin._
+import Dependencies._
+import Resolvers._
 
 object Build extends sbt.Build {
 
@@ -9,56 +11,31 @@ object Build extends sbt.Build {
 
   val MainVersion = "1.0.3"
 
-  val buildSettings = Defaults.defaultSettings ++ Seq (
+  // // // //  settings presets  // // // //
+
+  val buildSettings = Defaults.coreDefaultSettings ++ Defaults.defaultConfigs ++ Seq (
     organization  := "feh.util",
     scalaVersion := ScalaVersion,
     crossScalaVersions  := ScalaVersions,
     scalacOptions in (Compile, doc) ++= Seq("-diagrams")
-//    scalacOptions ++= Seq("-explaintypes"),
-//    scalacOptions ++= Seq("-deprecation"),
   )
 
-  object Resolvers{
-    object Release{
-      val sonatype = "Sonatype Releases" at "http://oss.sonatype.org/content/repositories/releases"
-      val spray = "spray" at "http://repo.spray.io/"
-    }
 
-    object Snapshot{
-      val sonatype = "Sonatype Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
-    }
+  lazy val testSettings = TestSettings.get ++ Seq(
+    TestSettings.copyTestReportsDir <<= baseDirectory(base => Some(base / "test-reports")),
+    TestSettings.autoAddReportsToGit := true
+  )
 
-  }
-
-  object Dependencies{
-    object Apache{
-      lazy val ioCommons = "commons-io" % "commons-io" % "2.4"
-    }
-
-    object scala{
-      def compiler(version: String) = "org.scala-lang" % "scala-compiler" % version
-      def swing(version: String) = "org.scala-lang" % "scala-swing" % version // todo: won't work for 2.11.1
-      def reflectApi(version: String) = "org.scala-lang" % "scala-reflect" % version
-    }
-
-    lazy val treehugger = "com.eed3si9n" %% "treehugger" % "0.3.0"
-    def scalaRefactoring(scalaVersion: String) = scalaVersion match{
-      case v if v startsWith "2.10" => "org.scala-refactoring" %% "org.scala-refactoring" % "0.6.2-SNAPSHOT"
-      case v if v startsWith "2.11" => "de.sciss" % "scalarefactoring_2.11" % "0.1.0"
-    }
-  }
-
-  import Dependencies._
-  import Resolvers._
+  // // // // // //  projects  // // // // // //
 
   lazy val root = Project(
     id = "root",
     base = file("."),
-    settings = buildSettings ++ Seq(
+    settings = buildSettings ++ testSettings ++ Seq(
       version := MainVersion
     )
   ) .settings(ideaExcludeFolders := ".idea" :: ".idea_modules" :: Nil)
-    .aggregate(util, compiler)
+    .aggregate(util, compiler, shell)
 
   lazy val util = Project(
     id = "util",
@@ -78,6 +55,15 @@ object Build extends sbt.Build {
       libraryDependencies <++= scalaVersion {sv =>
         Seq(scala.compiler _, scalaRefactoring _).map(_(sv))
       }
+    )
+  ) dependsOn util
+
+  lazy val shell = Project(
+    id = "shell-utils",
+    base = file("shell"),
+    settings = buildSettings ++ testSettings ++ Seq(
+      version := "0.1",
+      libraryDependencies ++= Seq(Apache.ioCommons, akka)
     )
   ) dependsOn util
 
