@@ -1,6 +1,6 @@
 utils
 ====
-utils, initially separated from agents projects
+*utils, initially separated from agents projects*
 
 **util** package contains utilities for 
 
