@@ -1,6 +1,5 @@
-util
+utils
 ====
-
 utils, initially separated from agents projects
 
 **util** package contains utilities for 
@@ -28,6 +27,7 @@ utils, initially separated from agents projects
  
 **shell** package contains **TODO**
 
+* [Test reports](shell/test-reports) 
 * *ProcessWrappers* advanced process execution utils
 
 ---
