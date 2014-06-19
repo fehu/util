@@ -36,7 +36,7 @@ class ProcessWrappersSpec extends Specification
                                                                               """
 
   def runningProcess =                                                                                  s2"""
-   $t A `RunningProcess` listens to process exit and creates a `FinishedProcess`, that can be accessed  $end
+ $t$t A `RunningProcess` listens to process exit and creates a `FinishedProcess`, that can be accessed  $end
 
             Synchronously                                                            $accessFinishedSync$end
             Asynchronously                                                          $accessFinishedAsync$end

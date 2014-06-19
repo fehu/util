@@ -29,6 +29,7 @@ utils
 
 * [Test reports](shell/test-reports) 
 * *ProcessWrappers* advanced process execution utils
+* *ProcessReaderWrappers* utils for reading asynchronously a process's outputs
 
 ---
 

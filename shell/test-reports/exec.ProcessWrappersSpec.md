@@ -4,7 +4,7 @@
         `RunningProcess` and an conversion `.wrap` from `Process`                 
 
 
-        A `RunningProcess` listens to process exit and creates a `FinishedProcess`, that can be accessed              
+              A `RunningProcess` listens to process exit and creates a `FinishedProcess`, that can be accessed              
             
                         Synchronously                                                                      
                               by method `await` (+)                                                                        
@@ -17,5 +17,5 @@
         `FinishedProcess` container                                                                                                                             
                                                                                                                                                             
 | ProcessWrappers |
-| Finished in 16 ms |
+| Finished in 12 ms |
 | 3 examples, 0 failure, 0 error |

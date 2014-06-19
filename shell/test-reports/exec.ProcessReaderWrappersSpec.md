@@ -26,5 +26,5 @@
                                                                                                                                                                                                                                                                                                                   
                                                                                                                                                                                                             
 | ProcessReaderWrappers |
-| Finished in 16 ms |
+| Finished in 12 ms |
 | 10 examples, 0 failure, 0 error |
