@@ -17,5 +17,5 @@
         `FinishedProcess` container                                                                                                                             
                                                                                                                                                             
 | ProcessWrappers |
-| Finished in 12 ms |
+| Finished in 16 ms |
 | 3 examples, 0 failure, 0 error |

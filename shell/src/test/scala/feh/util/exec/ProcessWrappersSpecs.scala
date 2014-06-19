@@ -11,12 +11,8 @@ import org.specs2.matcher.MatchResult
 import org.specs2.execute.AsResult
 
 
-object ProcessWrappersHelper{
-  lazy val asys = ActorSystem.create("ProcessWrappersSpec")
-}
-
 trait ProcessWrappersSpecHelper extends ExecUtils{
-  implicit def asys = ProcessWrappersHelper.asys
+  implicit def asys = Tests.asys
   def halfSecond = FiniteDuration(500, "millis")
   def oneSecond = FiniteDuration(1, "second")
   def aSecondAndAHalf = FiniteDuration(1500, "millis")
@@ -207,6 +203,9 @@ class ProcessReaderWrappersSpec extends Specification with ProcessReaderWrappers
     def getRead =
       if(error) process.read.error
       else process.read.output
+    def getTheOther =
+      if(error) process.read.output
+      else process.read.error
 
     sleep(200)
     val read1 = getRead
@@ -216,7 +215,9 @@ class ProcessReaderWrappersSpec extends Specification with ProcessReaderWrappers
     val read2 = getRead
     val test2 = read2 must contain(read1) and mustContain(read2, 3) and mustContain(read2, 4) //and mustContain(read1, 5)
 
-    test1 and test2
+    val testOther = getTheOther must beEqualTo("")
+
+    test1 and test2 and testOther
   }
 
   protected def finSync(msg: String,

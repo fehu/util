@@ -5,22 +5,23 @@ import feh.util.ExecUtils
 import akka.actor.{PoisonPill, ActorRef, ActorSystem}
 import akka.actor.ActorDSL._
 import akka.pattern.ask
-import feh.util.FileUtils.File
+import feh.util.FileUtils.{Path, File}
 import scala.concurrent.duration._
 import scala.concurrent.{Future, Await}
 import java.io.{IOException, InputStream}
 import akka.event.Logging
 
 trait ProcessReaderWrappers extends ProcessWrappers with ExecUtils{
-  override def exec(args: Seq[String]) = redirectingStreams{ super.exec(args) }
+  override def exec(args: Seq[String], workingDir: Path = null) = redirectingStreams{ super.exec(args) }
 
   protected def delayRead: FiniteDuration = 1 milli span
 
   implicit class ProcessReaderWrapper(p: Process){
-      def withReader(implicit asys: ActorSystem) = new RunningProcess(p) with RunningProcessReader
-        {
-          lazy val readDelay = delayRead
-        }
+      def withReader(implicit asys: ActorSystem) =
+        new RunningProcess(p) with RunningProcessReader
+          {
+            lazy val readDelay = delayRead
+          }
     }
 
   trait RunningProcessReader extends RunningProcess{
