@@ -1,0 +1,4 @@
+- [ ] build util apps: ShellJarExecBuilder and ScriptShellHeaderBuilder
+- [ ] move `read` out of FileUtils
+- [ ] add Process Command Builder and support commands chaining
+- [ ] write sub project versions into corresponding `CurrentVersion`s on sbt `package`

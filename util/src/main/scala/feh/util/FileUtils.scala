@@ -302,6 +302,8 @@ trait FileUtils {
 
   }
 
+  implicit def stringToPath(string: String) = Path(string)
+
   object \ {
     def unapply(path: Path): Option[(String, Path)] = path.rHeadOpt map (_ -> path.rTail)
   }
@@ -366,6 +368,8 @@ trait FileUtils {
     }
     def toAbsolute: AbsolutePath
     def toRelative: RelativePath
+
+    def mkString(sep: String) = path.mkString(sep)
   }
 
   object `.` {
@@ -396,8 +400,6 @@ trait FileUtils {
     def toAbsolute = new AbsolutePath(reversed)
     def toRelative = this
   }
-
-  implicit def stringToRelativePath(filename: String): RelativePath = RelativePath(filename :: Nil)
 
   object AbsolutePath extends PathBuildHelper{
     def raw(seq: Seq[String]) = AbsolutePath(seq.mkString(" ").split(separatorChar))

@@ -1,12 +1,14 @@
 package feh.util
 
+import scala.util.Properties
+
 object Platform extends RuntimePlatform with RuntimePlatforms{
-  lazy val name = sys.props("os.name")
+  lazy val name = Properties.osName
   
   lazy val check = new PlatformCheck{
     def isLinux = name.toLowerCase contains "linux"
-    def isOsX = name.toLowerCase |> { nme => nme.contains("osx") || nme.contains("os x") }
-    def isWindows = name.toLowerCase contains "windows"
+    def isWindows = Properties.isWin
+    def isOsX = Properties.isMac
   }
 
   protected lazy val platformMapping = Map(
@@ -20,6 +22,8 @@ object Platform extends RuntimePlatform with RuntimePlatforms{
 trait RuntimePlatform{
   def name: String
   def check: PlatformCheck
+
+  def scalaVersion = Properties.scalaPropOrNone("version.number")
 
   protected def platformMapping: Map[PlatformCheck => Boolean, Platform]
   protected def unknownPlatform: Nothing
@@ -36,8 +40,7 @@ trait RuntimePlatform{
     def isUnix = isLinux || isOsX
   }
 
-  def assert(f: PlatformCheck => Boolean, msg: String = null): Unit = if(!f(check))
-    throw unsupported(msg)
+  def assert(f: PlatformCheck => Boolean, msg: String = null): Unit = if(!f(check)) throw unsupported(msg)
   def assert(f: Platform => Option[String]): Unit = f(platform) foreach(msg => throw unsupported(msg))
   def unsupported(msg: String = null) = PlatformException(name, Option(msg))
 

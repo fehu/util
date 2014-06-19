@@ -9,7 +9,7 @@ object Build extends sbt.Build {
   val ScalaVersions = Seq("2.11.1", "2.10.3")
   val ScalaVersion = ScalaVersions.head
 
-  val MainVersion = "1.0.3"
+  val MainVersion = "1.0.4"
 
   // // // //  settings presets  // // // //
 

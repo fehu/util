@@ -3,6 +3,7 @@ package feh.util
 import java.lang.ProcessBuilder.Redirect
 import java.io.File
 import java.text.NumberFormat
+import feh.util.FileUtils._
 
 object ExecUtils extends ExecUtils
 trait ExecUtils extends Debugging{
@@ -40,13 +41,21 @@ trait ExecUtils extends Debugging{
   // todo: test what happens with permission after
   def inExecutableMode[R](f: => R): R = setExecState.doWith(true)(f)
 
-  def exec(args: Seq[String]): Process = {
-    debugLog(s"## executing command: ${args.mkString(" ")}")
+  private val mergeErrorSream = new ScopedState[Boolean](false)
+  def mergingErrorStream_? = mergeErrorSream.get
+  def mergingErrorStream[R](f: => R): R = mergeErrorSream.doWith(true)(f)
+  def withoutMergingErrorStream[R](f: => R): R = mergeErrorSream.doWith(false)(f)
+
+  def exec(args: Seq[String], workingDir: Path = null): Process = {
+    debugLog(s"## executing command: ${args.mkString("'", "' '", "'")}")
     val builder = new ProcessBuilder(args: _*)
+
+    Option(workingDir) foreach { builder directory _.file }
     
     if(redirecting_?) {
       builder.redirectOutput(Redirect.PIPE)
-      builder.redirectError(Redirect.PIPE)
+      if(mergingErrorStream_?) builder.redirectErrorStream(true)
+      else builder.redirectError(Redirect.PIPE)
     }
     if(setExec_?) new File(args.head) |> {
       f =>
@@ -60,7 +69,19 @@ trait ExecUtils extends Debugging{
 
   def exec[S <% String](cmd: String, args: S*): Process = exec(cmd +: args.implicitlyMapTo[String])
 
-  def sbt(cmd: String, args: String*) = exec("sbt" +: cmd +: args :+ "-no-colors")
+  def sbt(args: String*) = {
+    val workDir = findProjectDir(new File(".")) getOrElse sys.error("No sbt project found in parent directories")
+    exec("sbt" +: args :+ "-no-colors", workDir.path)
+  }
 
+  protected def findProjectDir(current: File): Option[File] =
+    if(current == null) None
+    else current.listFiles().find(isProjectDir)
+      .map(_ => current)
+      .orElse(findProjectDir(current.getParentFile))
+
+  protected def isProjectDir(file: File) = file.isDirectory && file.name == "project" && {
+    val fileNames = file.listFiles().map(_.name.toLowerCase)
+    fileNames.contains("build.scala") || fileNames.contains("build.sbt") //|| fileNames.contains("build.properties")
+  }
 }
-
