@@ -1,19 +1,21 @@
 ## ProcessWrappers
   
-   `ProcessWrappers` trait provides
-     `RunningProcess` and an implicit conversion from `Process`                
-            A `RunningProcess` listens to process exit and creates a `FinishedProcess`, that can be accessed
+   `ProcessWrappers` trait provides                                                
+        `RunningProcess` and an conversion `.wrap` from `Process`                 
+
+
+        A `RunningProcess` listens to process exit and creates a `FinishedProcess`, that can be accessed              
             
-              Synchronously                                                             
+                        Synchronously                                                                      
                               by method `await` (+)                                                                        
-                                                                                                                                                        
-                Asynchronously                                                            
+                                                                                                                                                                                                                                                                                                            
+                        Asynchronously                                                                    
                               by method `onComplete` (+)          
                               by methods `onSuccess`/`onFailure` (+)                                                                        
-                                                                                                                                                                                                                        
-                                                                                                                                                    
-        `FinishedProcess` container
-                                                                            
+                                                                                                                                                                                                                                                                                                                                                                                                        
+                                                                                                                                                                                                                    
+        `FinishedProcess` container                                                                                                                             
+                                                                                                                                                            
 | ProcessWrappers |
-| Finished in 13 ms |
+| Finished in 16 ms |
 | 3 examples, 0 failure, 0 error |

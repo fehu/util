@@ -1,2 +1,3 @@
 * build util apps: ShellJarExecBuilder and ScriptShellHeaderBuilder
 * move `read` out of FileUtils
+* add Process Command Builder and support commands chaining

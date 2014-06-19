@@ -33,6 +33,7 @@ utils
 ---
 
 ### SBT Keys
+*tests run only on Linux and OsX systems*
 
 sbt `copy-test-reports` task copies specs2 markdown reports to `test-reports-copy-dir`
 

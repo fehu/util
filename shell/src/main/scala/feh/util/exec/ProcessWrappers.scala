@@ -6,23 +6,22 @@ import scala.concurrent.{Future, Promise, Await}
 import scala.collection.mutable.ListBuffer
 import akka.actor.ActorSystem
 import scala.concurrent.duration._
-import scala.util.Success
 
 trait ProcessWrappers{
 
   sealed trait WrappedProcess{
     def process: Process
-    def execFinished: Boolean
+    def finished_? : Boolean
   }
 
-  implicit def runningProcessWrapper(p: Process)(implicit asys: ActorSystem) = new RunningProcess(p)
+  implicit class RunningProcessWrapper(p: Process)(implicit asys: ActorSystem){
+    def wrap = new RunningProcess(p)
+  }
 
   class RunningProcess protected[ProcessWrappers] (val process: Process)(implicit val asys: ActorSystem) extends WrappedProcess{
-    protected var finished_? = false
-    def execFinished = finished_?
-
     protected var _finished: FinishedProcess = _
     def finished = Option(_finished)
+    def finished_? = finished.isDefined
 
     protected def beforeAwait(){}
     protected def afterAwait(){}
@@ -39,11 +38,10 @@ trait ProcessWrappers{
           if(!finished_?) onCompletion += f
           else f(_finished)
         case Finished =>
-          assert(!finished_?)
-          finished_? = true
+          assert(!finished_?, "is already finished")
           _finished = createFinishedProcess()
           onCompletion foreach (_(_finished))
-          promise.complete(Success(_finished))
+          promise.success(_finished)
       }
 
       Future{
@@ -74,7 +72,7 @@ trait ProcessWrappers{
   }
 
   class FinishedProcess protected[ProcessWrappers] (val process: Process) extends WrappedProcess{
-    final def execFinished = true
+    final def finished_? = true
 
     def exitCode = process.exitValue()
     def success = exitCode == 0

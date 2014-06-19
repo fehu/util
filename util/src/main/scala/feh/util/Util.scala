@@ -212,11 +212,18 @@ trait Util extends RandomWrappers{
   }
 
 
-//  implicit class BooleanResultFunction1Wrapper[T](bfunc: T => )
-
   implicit class InCaseWrapper[T](t: T){
     def inCase(test: T => Boolean) = if(test(t)) Some(t) else None
   }
+  
+  implicit class ImplicitApplyWrapper[T](t: => T){
+    def implicitlyTo[R](implicit convert: T => R): R = convert(t)
+  }
+
+  implicit class ImplicitApplySeqWrapper[A](seq: Seq[A]){
+    def implicitlyMapTo[B](implicit convert: A => B) = seq.map(convert)
+  }
+  
 }
 
 case object up extends Exception
