@@ -24,6 +24,7 @@ trait RuntimePlatform{
   def check: PlatformCheck
 
   def scalaVersion = Properties.scalaPropOrNone("version.number")
+    .getOrElse(sys.error("Couldn't determine scala version"))
 
   protected def platformMapping: Map[PlatformCheck => Boolean, Platform]
   protected def unknownPlatform: Nothing

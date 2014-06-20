@@ -32,7 +32,7 @@ trait IvyHelper {
   protected def packageName(inf: LibInfo) = inf.meta match {
     case Managed(dependsOnScala) =>
       if(dependsOnScala) inf.name + "_" +
-        Platform.scalaVersion.getOrElse(sys.error("no scala version defined")).split('.').take(2).mkString(".")
+        Platform.scalaVersion.split('.').take(2).mkString(".")
       else inf.name
     case Unmanaged(_) => sys.error("unmanaged dependencies are not supported by ivy")
   }

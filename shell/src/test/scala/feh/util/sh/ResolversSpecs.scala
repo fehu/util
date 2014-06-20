@@ -11,7 +11,7 @@ import org.specs2.execute.{Result, Error}
 import org.specs2.matcher.MatchResult
 
 trait ResolversSpecsHelper{
-  def scalaVersion = ScalaVersion(Platform.scalaVersion.getOrElse(sys.error("Couldn't determine scala version")))
+  def scalaVersion = ScalaVersion(Platform.scalaVersion)
 }
 
 object ClassPathResolverSpec extends ResolversSpecsHelper{

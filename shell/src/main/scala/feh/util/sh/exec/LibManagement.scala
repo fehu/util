@@ -5,9 +5,9 @@ import feh.util.ScopedState
 import scala.util.Try
 import java.io.File
 
-sealed trait ImportInfo
-  case class LibInfo(group: String, name: String, version: String, meta: LibInfoMeta) extends ImportInfo
-  case class Import(path: Path, wildcard: Boolean, libs: Seq[LibInfo]) extends ImportInfo
+sealed trait DependencyInfo
+  case class LibInfo(group: String, name: String, version: String, meta: LibInfoMeta) extends DependencyInfo
+  case class Import(path: Path, wildcard: Boolean, libs: Seq[LibInfo]) extends DependencyInfo
   {
     def transform(fpath: Path => Path = identity,
                   wildcard: Boolean = this.wildcard,
@@ -16,8 +16,8 @@ sealed trait ImportInfo
       Import(fpath(path), wildcard, flibs(libs))
   }
 
-object ImportInfo{
-  implicit class ImportInfoSeqOps(ii: Seq[ImportInfo]){
+object DependencyInfo{
+  implicit class ImportInfoSeqOps(ii: Seq[DependencyInfo]){
     def extractLibs = ii.flatMap{
       case lib: LibInfo => Seq(lib)
       case Import(_,_,libs) => libs
