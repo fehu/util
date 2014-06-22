@@ -19,12 +19,12 @@ trait SourceProcessorHelper {
         (m.start, end)
     }
 
-  /**
+  /** replaces in the @code builder
    * @return (replaced, extracted)
    */
   def extractAndReplace(code: StringBuilder, segments: List[(Int, Int)])
                        (segmentStartLen: Int, segmentEndLen: Int)
-                       (replace: String => Option[String]): (StringBuilder, List[String]) = {
+                       (replace: String => Option[String]): List[String] = {
     val acc = ListBuffer.empty[String]
 
     segments.sortBy(_._1).reverse.foreach{
@@ -33,9 +33,29 @@ trait SourceProcessorHelper {
         acc += orig
         replace(orig).foreach( code.replace(start, end+segmentEndLen, _) )
     }
-    code -> acc.toList
+    acc.toList
   }
 
+  def prependToEachLine(what: String, to: String) = to.split('\n').map(what + _).mkString("\n")
+  
+  def uniteAggregated(str: String) = {
+    str.split('\n').map(_.trim) match{
+      case Array() => sys.error("empty string")
+      case Array(oneLine) => oneLine.trim.ensuring(l => !l.lastOption.exists(_ == '\\'), "unaggregated \\ encountered")
+      case lines => {
+        lines.dropRight(1).map(_.ensuring(_.endsWith("\\"), "no aggregation symbol encountered").dropRight(1).trim) :+
+          lines.last.ensuring(l => !l.endsWith("\\"), "unexpected \\")
+      }.mkString(" ")
+    }
+
+  }
+
+  type Replace = String => Option[String]
+  object replace{
+    def remove: Replace = _ => None
+    def comment: Replace = extracted => Some(prependToEachLine("//", extracted))
+  }
+  
 }
 
 object SourceProcessorHelper extends SourceProcessorHelper

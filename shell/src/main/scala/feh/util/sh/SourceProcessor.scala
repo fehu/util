@@ -1,6 +1,7 @@
 package feh.util.sh
 
 import scala.util.matching.Regex
+import feh.util._
 
 /** A SourceProcessor processes different features of the source
  */
@@ -32,8 +33,9 @@ abstract class SourceShLineProcessor(val keyShLine: String) extends SourceShProc
     def len = keyShLine.length
   }
 
-  def process(source: StringBuilder, params: String*) =
-    extractAndReplace(source, allMatchesWithAggregatedLines(source.toString(), shLine.r))(shLine.len, 0)(shExecInj)._1
+  def process(source: StringBuilder, params: String*) = source $$ {
+    extractAndReplace(source, allMatchesWithAggregatedLines(source.toString(), shLine.r))(shLine.len, 0)(shExecInj): Unit
+  }
 
   //replaceShLines(source)
 
@@ -69,7 +71,8 @@ abstract class SourceShBlockProcessor(val keyShStart: String, val keyShEnd: Stri
     assert(starts.length == ends.length, "unbalanced sh blocks")
     val ranges = starts.zip(ends).ensuring(_.forall(p => p._1 < p._2), "sh block close precedes open")
 
-    extractAndReplace(source, ranges)(shStart.len, shEnd.len)(shExecInj)._1
+    extractAndReplace(source, ranges)(shStart.len, shEnd.len)(shExecInj)
+    source
   }
 
 //    replaceShBlocks(source)

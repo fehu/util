@@ -7,7 +7,7 @@ import feh.util.sh.exec.{DependencyInfo, Import, LibInfo}
   */
 trait SourceDependencies extends SourceProcessor{
 
-  /** processes the source and returns it with dependencies
+  /** processes the source and returns it with dependencies; the source may be modified
    */
   def withDependencies(source: StringBuilder, params: String*): (StringBuilder, Seq[DependencyInfo])
 }

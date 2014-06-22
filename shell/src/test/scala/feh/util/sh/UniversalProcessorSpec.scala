@@ -5,8 +5,12 @@ import scala.collection.mutable
 import scala.util.Try
 import feh.util._
 import org.specs2.execute.Result
+import feh.util.sh.exec.{Managed, LibInfo}
+import org.specs2.matcher.MatchResult
 
 object UniversalProcessorSpec{
+  def specs2Ver = "2.3.12"
+
   def uprocessor = UniversalProcessor.get
 
   def process = uprocessor.process(_: mutable.StringBuilder)
@@ -37,10 +41,12 @@ class UniversalProcessorSpec extends Specification{
         | all |       key for enabling all the features listed above                    ${parse().allKey}
 
             Dependency management                                                       $end
-                by package *name*, *group* and *version*                                $todo
-                by package *name* and *group*, choosing latest version                  $todo
-                by package *name* only                                                  $todo
-                all dependency management methods support scala versioning              $todo
+                by package *name*, *group* and *version*                                ${depend().byAll}
+                        supports scala versioning                                       ${depend().scala.byAll}
+                by package *name* and *group*, choosing latest version                  ${depend().autoVer}
+                        supports scala versioning                                       ${depend().scala.autoVer}
+                by package *name* only                                                  ${depend().byName}
+                        supports scala versioning                                       ${depend().scala.byName}
 
         Quick imports                                                                   $todo
 
@@ -190,7 +196,47 @@ class UniversalProcessorSpec extends Specification{
     }
   }
 
-  case class dep(){
+  case class depend(){
+    def byAll     = test(key + byAllSrc,    byAllLib,   _ ==== commented(byAllSrc))
+    def autoVer   = test(key + autoVerSrc,  autoVerLib, _ ==== commented(autoVerSrc))
+    def byName    = test(key + byNameSrc,   byNameLib,  _ ==== commented(byNameSrc))
 
+    lazy val extractor = uprocessor.dependenciesProcessors.collect{ case x: SourceDependenciesExtractor => x }
+      .ensuring(_.size == 1).head
+
+    def key = extractor.dependencyKey
+
+    def byAllSrc = s"org.scala-lang % scala-library-all % ${Platform.scalaVersion.version}"
+    def byAllLib = Libs.scala.libAll(Platform.scalaVersion) :: Nil
+
+    def autoVerSrc = "commons-io % commons-io"
+    def autoVerLib = LibInfo("commons-io", "commons-io", "_", Managed.java) :: Nil
+
+    def byNameSrc = "%scala-reflect"
+    def byNameLib = LibInfo("_", "scala-reflect", "_", Managed.java) :: Nil
+
+    object scala {
+      def byAll     = test(key + byAllSrc,    byAllLib,   _ ==== commented(byAllSrc))
+      def autoVer   = test(key + autoVerSrc,  autoVerLib, _ ==== commented(autoVerSrc))
+      def byName    = test(key + byNameSrc,   byNameLib,  _ ==== commented(byNameSrc))
+
+      def byAllSrc = s"org.specs2 %% specs2 % $specs2Ver"
+      def byAllLib = Libs.specs2(specs2Ver) :: Nil
+
+      def autoVerSrc = "feh.util %% util"
+      def autoVerLib = Libs.feh.util.last :: Nil
+
+      def byNameSrc = "%% akka-actor"
+      def byNameLib = LibInfo("_", "akka-actor", "_", Managed.scala) :: Nil
+    }
+
+    def commented = SourceProcessorHelper.replace.comment andThen (_.get)
+
+    def test(src: String, expected: Seq[LibInfo], testSrc: String => MatchResult[String]) = {
+      val s = new StringBuilder(src)
+      val deps = extractor.withDependencies(s)._2
+
+      deps mustEqual (extractor.predefinedDependencies ++ expected) and testSrc(s.mkString)
+    }
   }
 }

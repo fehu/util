@@ -1,7 +1,7 @@
 package feh.util.sh
 
 import org.specs2.Specification
-import feh.util.sh.exec.{ScalaResolver, LibInfo, ScalaVersion, ClassPathResolver}
+import feh.util.sh.exec.{ScalaResolver, LibInfo, ClassPathResolver}
 import scala.util.{Failure, Success, Try, Properties}
 import feh.util.{Tests, Platform}
 import feh.util.exec.{ProcessReaderWrappers, SbtHelper}
@@ -11,7 +11,7 @@ import org.specs2.execute.{Result, Error}
 import org.specs2.matcher.MatchResult
 
 trait ResolversSpecsHelper{
-  def scalaVersion = ScalaVersion(Platform.scalaVersion)
+  def scalaVersion = Platform.scalaVersion
 }
 
 object ClassPathResolverSpec extends ResolversSpecsHelper{

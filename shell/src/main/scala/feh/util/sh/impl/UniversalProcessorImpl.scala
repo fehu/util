@@ -2,7 +2,7 @@ package feh.util.sh.impl
 
 import feh.util.sh._
 import scala.util.matching.Regex
-import feh.util.sh.exec.{ScalaVersion, LibInfo, Import, DependencyInfo}
+import feh.util.sh.exec.{LibInfo, Import}
 import feh.util.Platform
 
 /** Default source processor implementation
@@ -18,7 +18,7 @@ class UniversalProcessorImpl(val processorByName: Map[String, SourceProcessor],
                              predefinedDependencies: Seq[LibInfo])
   extends UniversalProcessorLibs
   with ProcessorConfigSourceParser 
-  with ProcessorConfigSourceParserExtraKeys
+  with ProcessorConfigSourceParserAllKey
 {
   val configRegex: Regex = """(?<name>\S+)(?:\:(?<args>.*))?""".r
   def configSeparators = Array(';')
@@ -28,7 +28,7 @@ class UniversalProcessorImpl(val processorByName: Map[String, SourceProcessor],
 
   lazy val dependenciesProcessors =
     new SourceImportsExtractorImpl(importKeyword, importByKey, importsPredefined) ::
-    new SourceDependenciesExtractorImpl(dependencyKeyword, predefinedDependencies) :: Nil
+    new SourceDependenciesExtractorImpl(dependencyKeyword, predefinedDependencies, replace.comment) :: Nil
 
 }
 
@@ -73,5 +73,5 @@ object UniversalProcessorImpl{
                                importKeyword, importKeys, importsPredef,
                                dependencyKeyword, dependenciesPredef)
 
-  def scalaVersion = ScalaVersion(Platform.scalaVersion)
+  def scalaVersion = Platform.scalaVersion
 }

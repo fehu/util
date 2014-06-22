@@ -2,7 +2,7 @@ package feh.util.sh.exec
 
 import feh.util.FileUtils._
 import feh.util.sh.UniversalProcessorLibs
-import feh.util.{Platform, ScopedState}
+import feh.util.{ScalaVersion, Platform, ScopedState}
 
 trait ScriptExecutor {
   def exec(path: Path)
@@ -18,7 +18,7 @@ trait ScriptExec extends ScriptExecutor{
   def cpResolver: ClassPathResolver
   def executor: SourceExecutor
 
-  lazy val scalaVersion = new ScopedState[ScalaVersion](ScalaVersion(Platform.scalaVersion))
+  lazy val scalaVersion = new ScopedState[ScalaVersion](Platform.scalaVersion)
   
   def exec(path: Path){
     val originalSource = path.file.withInputStream(File.read[String]).recover{

@@ -23,8 +23,9 @@ trait RuntimePlatform{
   def name: String
   def check: PlatformCheck
 
-  def scalaVersion = Properties.scalaPropOrNone("version.number")
-    .getOrElse(sys.error("Couldn't determine scala version"))
+  def scalaVersion = ScalaVersion(
+    Properties.scalaPropOrNone("version.number").getOrElse(sys.error("Couldn't determine scala version"))
+  )
 
   protected def platformMapping: Map[PlatformCheck => Boolean, Platform]
   protected def unknownPlatform: Nothing
@@ -61,3 +62,10 @@ trait RuntimePlatforms{
   case object Windows extends Platform
 }
 
+case class ScalaVersion(version: String){
+  def complies(v: String) = version == "_" || v == version || (v.startsWith(version) && !v.contains("-"))
+}
+
+object ScalaVersion{
+  implicit def scalaVersionToString(ver: ScalaVersion) = ver.version
+}

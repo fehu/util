@@ -5,7 +5,7 @@ import scala.util.matching.Regex
 
 case class ProcessorCall(name: String, params: Seq[String] = Nil)
 
-object UniversalProcessor extends ScopedState[UniversalProcessor](impl.UniversalProcessorImpl())
+object UniversalProcessor extends ScopedState[UniversalProcessorLibs](impl.UniversalProcessorImpl())
 
 /** Combines various processors
  */
@@ -70,7 +70,6 @@ trait ProcessorConfigSourceParser extends SourceProcessorHelper{
     extractAndReplace(source, allMatchesWithAggregatedLines(source.mkString, ConfigKey.r))(ConfigKey.len, 0){
       _ => if(erase) Some("") else None
     }
-    ._2
 //      .flatMap{
 //      case escaped if escapedRegex.findFirstIn(escaped).isDefined =>
 //        escapedRegex.split(escaped).map(_.trim)
@@ -82,7 +81,7 @@ trait ProcessorConfigSourceParser extends SourceProcessorHelper{
 /**
  * Defines `all` key
  */
-trait ProcessorConfigSourceParserExtraKeys extends UniversalProcessor{
+trait ProcessorConfigSourceParserAllKey extends UniversalProcessor{
   self: ProcessorConfigSourceParser =>
 
   def allKey: String
