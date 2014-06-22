@@ -60,7 +60,7 @@ object UniversalProcessorImpl{
 
   def dependencyKeyword = "#lib"
 
-  def dependenciesPredef = Libs.scala.library(scalaVersion) :: Nil
+  def dependenciesPredef = Libs.scala.library(scalaVersion) :: Libs.feh.util :: Nil
 
   def apply(processors: Map[String, SourceProcessor] = processors,
             configKey: String = configKey,

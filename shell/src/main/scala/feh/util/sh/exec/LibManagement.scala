@@ -8,6 +8,10 @@ import java.io.File
 sealed trait DependencyInfo
   case class LibInfo(group: String, name: String, version: String, meta: LibInfoMeta) extends DependencyInfo{
     def last = copy(version = "_")
+
+    def isScala = PartialFunction.cond(meta){ case Managed(b) => b }
+
+    override def toString = s"$group ${if(isScala) "%%" else "%"} $name % $version"
   }
   case class Import(path: Path, wildcard: Boolean, libs: Seq[LibInfo]) extends DependencyInfo
   {

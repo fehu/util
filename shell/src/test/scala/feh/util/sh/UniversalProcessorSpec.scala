@@ -7,6 +7,7 @@ import feh.util._
 import org.specs2.execute.Result
 import feh.util.sh.exec.{Managed, LibInfo}
 import org.specs2.matcher.MatchResult
+import org.specs2.specification.Text
 
 object UniversalProcessorSpec{
   def specs2Ver = "2.3.12"
@@ -48,11 +49,13 @@ class UniversalProcessorSpec extends Specification{
                 by package *name* only                                                  ${depend().byName}
                         supports scala versioning                                       ${depend().scala.byName}
 
-        Quick imports                                                                   $todo
+        Quick imports by predefined keys:                                               $end
+                'file'       => feh.util.FileUtils._
+                'exec'       => feh.util.FileUtils._
 
         Predefined imports                                                              $todo
 
-        Predefined dependencies                                                         $todo
+        Predefined dependencies:                                                        ${depend().print(16)}
                                                                                         """
 
   import UniversalProcessorSpec._
@@ -238,5 +241,11 @@ class UniversalProcessorSpec extends Specification{
 
       deps mustEqual (extractor.predefinedDependencies ++ expected) and testSrc(s.mkString)
     }
+
+    def print(indent: Int) = PrintIndents.newBuilder(indent).$${ implicit bp =>
+      bp.withDepth(_ => 1) {
+        extractor.predefinedDependencies.foreach(PrintIndents.printlni)
+      }
+    }.mkString |> (t => Text("\n" + t))
   }
 }
