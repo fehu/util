@@ -19,8 +19,8 @@ trait SourceDependencies extends SourceProcessor{
 trait SourceImports extends SourceDependencies{
   type ImportKey = String
 
-  def importByKey: PartialFunction[ImportKey, Import]
-  def toString(imports: Seq[DependencyInfo]): String
+  def importByKey: PartialFunction[ImportKey, Seq[Import]]
+  def strings(imports: Seq[Import]): Seq[String]
   protected def insert(imports: String, in: StringBuilder): StringBuilder
 
   def predefinedImports: Seq[Import]
@@ -31,24 +31,28 @@ trait SourceImports extends SourceDependencies{
   def process(source: StringBuilder, params: String*) = withDependencies(source, params: _*)._1
 
   def withDependencies(source: StringBuilder, params: String*): (StringBuilder, Seq[Import]) = {
-    val imp = imports(source, params)
+    val imp = imports(source, params).distinct
     (imp |> insertImports(source)) -> imp
   }
 
 
-  protected def imports(source: StringBuilder, params: Seq[String]) = predefinedImports ++ importsFromParams(params)
+  def importsIndent = 0
 
-  protected def importsFromParams(params: Seq[String]) =
-    params.map(importByKey.applyOrElse(_, (key: String) => sys.error(s"no key $key is defined")))
+  def toString(imports: Seq[Import], indent: Int = 0) = strings(imports).map(" "*indent +).mkString("\n")
+
+  protected def imports(source: StringBuilder, params: Seq[String]) = predefinedImports ++ importsByKeys(params)
+
+  protected def importsByKeys(keys: Seq[String]) =
+    keys.flatMap(importByKey.applyOrElse(_, (key: String) => sys.error(s"no key $key is defined")))
 
   protected def insertImports(source: StringBuilder)(libs: Seq[Import]) =
-    libs |> toString |> (insert(_, source))
+    toString(libs, importsIndent) |> (insert(_, source))
 }
 
 trait SourceImportsExtractor extends SourceImports{
   /** caution, this method removes dependencies definitions from source */
   override protected def imports(source: StringBuilder, params: Seq[String]) =
-    super.imports(source, params) ++ extractImports(source, params).map(importByKey)
+    super.imports(source, params) ++ extractImports(source, params).pipe(importsByKeys)
 
   /** import keyword */
   def importKey: String

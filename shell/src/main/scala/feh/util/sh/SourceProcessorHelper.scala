@@ -52,7 +52,7 @@ trait SourceProcessorHelper {
 
   type Replace = String => Option[String]
   object replace{
-    def remove: Replace = _ => None
+    def remove: Replace = _ => Some("")
     def comment: Replace = extracted => Some(prependToEachLine("//", extracted))
   }
   

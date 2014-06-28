@@ -28,7 +28,7 @@ trait ScriptExec extends ScriptExecutor{
     val source = new StringBuilder(originalSource)
     
     processor.process(source)
-    val dependencies = processor.dependenciesProcessors.flatMap(_.withDependencies(source)._2).extractLibs
+    val dependencies = processor.dependenciesProcessors.flatMap(_.withDependencies(source)._2).extractLibs.distinct
     
     implicit val cp = dependencies.map(cpResolver.resolvePath).toList
     implicit val ver = scalaVersion.get

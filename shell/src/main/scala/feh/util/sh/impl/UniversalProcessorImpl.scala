@@ -12,7 +12,7 @@ import feh.util.Platform
 class UniversalProcessorImpl(val processorByName: Map[String, SourceProcessor],
                              val configKey: String, 
                              importKeyword: String,
-                             importByKey: PartialFunction[String, Import],
+                             importByKey: PartialFunction[String, Seq[Import]],
                              importsPredefined: Seq[Import],
                              dependencyKeyword: String,
                              predefinedDependencies: Seq[LibInfo])
@@ -27,7 +27,7 @@ class UniversalProcessorImpl(val processorByName: Map[String, SourceProcessor],
   def allKey = "#all"
 
   lazy val dependenciesProcessors =
-    new SourceImportsExtractorImpl(importKeyword, importByKey, importsPredefined) ::
+    new SourceImportsExtractorImpl(importKeyword, importByKey, importsPredefined, replace.remove) ::
     new SourceDependenciesExtractorImpl(dependencyKeyword, predefinedDependencies, replace.comment) :: Nil
 
 }
@@ -51,10 +51,15 @@ object UniversalProcessorImpl{
 
   def importKeyword = "#import"
 
-  lazy val importKeys = Map(
-    "file" -> SourceImportsExtractorImpl.fileUtils,
-    "exec" -> SourceImportsExtractorImpl.execUtils
-  )
+  lazy val importKeys = {
+    import SourceImportsExtractorImpl._
+
+    Map(
+      "file" -> Seq(fileUtils),
+      "exec" -> Seq(execUtils),
+      "akka" -> Seq(akka.actor, akka.ask, akka.logging, scala.concurrent, scala.duration)
+    )
+  }
 
   def importsPredef = SourceImportsExtractorImpl.utils :: Nil
 
@@ -65,7 +70,7 @@ object UniversalProcessorImpl{
   def apply(processors: Map[String, SourceProcessor] = processors,
             configKey: String = configKey,
             importKeyword: String = importKeyword,
-            importKeys: Map[String, Import] = importKeys,
+            importKeys: Map[String, Seq[Import]] = importKeys,
             importsPredef: List[Import] = importsPredef,
             dependencyKeyword: String = dependencyKeyword,
             dependenciesPredef: Seq[LibInfo] = dependenciesPredef) =

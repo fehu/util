@@ -8,6 +8,7 @@ import org.specs2.execute.Result
 import feh.util.sh.exec.{Managed, LibInfo}
 import org.specs2.matcher.MatchResult
 import org.specs2.specification.Text
+import scala.collection.immutable.StringLike
 
 object UniversalProcessorSpec{
   def specs2Ver = "2.3.12"
@@ -50,10 +51,12 @@ class UniversalProcessorSpec extends Specification{
                         supports scala versioning                                       ${depend().scala.byName}
 
         Quick imports by predefined keys:                                               $end
-                'file'       => feh.util.FileUtils._
-                'exec'       => feh.util.FileUtils._
+                'file'       => feh.util.FileUtils._                                    ${imports().file}
+                'exec'       => feh.util.ExecUtils._                                    ${imports().exec}
+                'akka'       => akka.actor._, akka.pattern.ask, akka.event.Logging,     ${imports().akka}
+                                  scala.concurrent._, scala.concurrent.duration._       $end
 
-        Predefined imports                                                              $todo
+        Predefined imports                                                              ${imports().print(16)}
 
         Predefined dependencies:                                                        ${depend().print(16)}
                                                                                         """
@@ -199,23 +202,31 @@ class UniversalProcessorSpec extends Specification{
     }
   }
 
+  def getExtractor[R <: SourceDependencies](collect: PartialFunction[SourceDependencies, R]) =
+    uprocessor.dependenciesProcessors.collect(collect).ensuring(_.size == 1).head
+
+  def printInd(what: Seq[Any], indent: Int) = PrintIndents.newBuilder(indent).$${ implicit bp =>
+    bp.withDepth(_ => 1) {
+      what.foreach(PrintIndents.printlni)
+    }
+  }.mkString |> (t => Text("\n" + t))
+
   case class depend(){
     def byAll     = test(key + byAllSrc,    byAllLib,   _ ==== commented(byAllSrc))
     def autoVer   = test(key + autoVerSrc,  autoVerLib, _ ==== commented(autoVerSrc))
     def byName    = test(key + byNameSrc,   byNameLib,  _ ==== commented(byNameSrc))
 
-    lazy val extractor = uprocessor.dependenciesProcessors.collect{ case x: SourceDependenciesExtractor => x }
-      .ensuring(_.size == 1).head
+    lazy val extractor = getExtractor{ case x: SourceDependenciesExtractor => x }
 
     def key = extractor.dependencyKey
 
-    def byAllSrc = s"org.scala-lang % scala-library-all % ${Platform.scalaVersion.version}"
+    def byAllSrc = s" org.scala-lang % scala-library-all % ${Platform.scalaVersion.version}"
     def byAllLib = Libs.scala.libAll(Platform.scalaVersion) :: Nil
 
-    def autoVerSrc = "commons-io % commons-io"
+    def autoVerSrc = " commons-io % commons-io"
     def autoVerLib = LibInfo("commons-io", "commons-io", "_", Managed.java) :: Nil
 
-    def byNameSrc = "%scala-reflect"
+    def byNameSrc = " %scala-reflect"
     def byNameLib = LibInfo("_", "scala-reflect", "_", Managed.java) :: Nil
 
     object scala {
@@ -223,7 +234,7 @@ class UniversalProcessorSpec extends Specification{
       def autoVer   = test(key + autoVerSrc,  autoVerLib, _ ==== commented(autoVerSrc))
       def byName    = test(key + byNameSrc,   byNameLib,  _ ==== commented(byNameSrc))
 
-      def byAllSrc = s"org.specs2 %% specs2 % $specs2Ver"
+      def byAllSrc = s" org.specs2 %% specs2 % $specs2Ver"
       def byAllLib = Libs.specs2(specs2Ver) :: Nil
 
       def autoVerSrc = "feh.util %% util"
@@ -237,15 +248,43 @@ class UniversalProcessorSpec extends Specification{
 
     def test(src: String, expected: Seq[LibInfo], testSrc: String => MatchResult[String]) = {
       val s = new StringBuilder(src)
-      val deps = extractor.withDependencies(s)._2
+      val deps = extractor.withDependencies(s)._2.distinct
 
       deps mustEqual (extractor.predefinedDependencies ++ expected) and testSrc(s.mkString)
     }
 
-    def print(indent: Int) = PrintIndents.newBuilder(indent).$${ implicit bp =>
-      bp.withDepth(_ => 1) {
-        extractor.predefinedDependencies.foreach(PrintIndents.printlni)
-      }
-    }.mkString |> (t => Text("\n" + t))
+    def print = printInd(extractor.predefinedDependencies, _: Int)
+  }
+
+  case class imports() {
+    def file = test(key + " file", fileExp, Nil) // lib is auto imported
+    def exec = test(key + " exec", execExp, Nil) // lib is auto imported
+    def akka = test(key + " akka", akkaExp, Libs.akka.actor() :: Nil)
+
+    lazy val extractor = getExtractor{ case x: SourceImportsExtractor => x }
+
+    def key = extractor.importKey
+
+    def fileExp = "import feh.util.FileUtils._"
+    def execExp = "import feh.util.ExecUtils._"
+    def akkaExp="""import akka.actor._
+                  |import akka.pattern.ask
+                  |import akka.event.Logging
+                  |import scala.concurrent._
+                  |import scala.concurrent.duration._""".stripMargin
+
+    def expectedHead = extractor.toString(extractor.predefinedImports) + "\n"
+
+    def test(expr: String, expected: String, libs: Seq[LibInfo]) = {
+      val src = new StringBuilder(expr)
+      val deps = extractor.withDependencies(src)._2.extractLibs.distinct
+
+      splitAndSort(src) ==== splitAndSort(expectedHead + expected) and
+        deps ==== (extractor.predefinedImports.extractLibs ++ libs)
+    }
+
+    private def splitAndSort(str: StringLike[_]) = str.split('\n').sorted
+
+    def print = "\n" + extractor.toString(extractor.predefinedImports, _: Int)
   }
 }

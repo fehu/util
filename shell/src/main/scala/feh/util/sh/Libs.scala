@@ -2,6 +2,7 @@ package feh.util.sh
 
 import feh.util.sh.exec.{Managed, LibInfoMeta, LibInfo}
 import feh.util.ScalaVersion
+import com.typesafe.config.{ConfigFactory, Config}
 
 object Libs {
   object feh{
@@ -21,7 +22,8 @@ object Libs {
   }
 
   object akka{
-    def actor(ver: String) = LibInfo("com.typesafe.akka", "akka-actor", ver, Managed.scala)
+    def currentVersion = ConfigFactory.load().getString("akka.version")
+    def actor(ver: String = currentVersion) = LibInfo("com.typesafe.akka", "akka-actor", ver, Managed.scala)
   }
 
   def specs2(ver: String) = LibInfo("org.specs2", "specs2", ver, Managed.scala)

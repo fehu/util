@@ -7,24 +7,27 @@ import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 import feh.util.sh.exec.Import
 import feh.util.sh.exec.LibInfo
-import scala.Some
 
 class SourceImportsExtractorImpl(val importKey: String,
-                                 val importByKey: PartialFunction[String, Import],
-                                 val predefinedImports: Seq[Import])
-  extends SourceImportsExtractor
+                                 val importByKey: PartialFunction[String, Seq[Import]],
+                                 val predefinedImports: Seq[Import],
+                                 val replacePolicy: SourceProcessorHelper#Replace)
+  extends SourceImportsExtractor with SourceProcessorHelper
 {
   /** reads and removes import definitions from source */
-  protected def extractImports(source: StringBuilder, params: Seq[String]) = Nil                                      // todo
+  protected def extractImports(source: StringBuilder, params: Seq[String]) =
+    extractAndReplace(source, allMatchesWithAggregatedLines(source.mkString, importKey.r))(
+      importKey.length, 0)(replacePolicy) map uniteAggregated flatMap extract
 
-  def toString(seq: Seq[DependencyInfo]) = imports(seq)
-    .map{
-      case (p, i :: Nil) => "import " + (p / i).path.mkString(".")
-      case (p, is) => "import " + p.path.mkString(".") + "{" + is.mkString(", ") + "}"
-    }
-    .mkString("\n")
+  def extract(s: String) = s.split("\\s+").toSeq
 
-  protected def imports(inf: Seq[DependencyInfo]) = {
+  def strings(seq: Seq[Import]) = imports(seq).map{
+    case (p, i :: Nil) => "import " + (p / i).path.mkString(".")
+    case (p, is) => "import " + p.path.mkString(".") + ".{" + is.mkString(", ") + "}"
+  }
+
+
+  protected def imports(inf: Seq[Import]) = {
     val wild = inf.collect { case Import(path, true, _) => path }
     val imports = inf.collect { case Import(path, false, _) => path } |> Path.group
     imports ++ wild.map(_ -> Seq("_"))
@@ -35,9 +38,25 @@ class SourceImportsExtractorImpl(val importKey: String,
 
 
 object SourceImportsExtractorImpl{
+  // override standard one
+  protected implicit def strToPath: String => Path = _.pathBy('.')
+
   lazy val utils = Import("feh" / "util", wildcard = true, Seq(Libs.feh.util))
   lazy val fileUtils = utils.transform(_ / "FileUtils")
   lazy val execUtils = utils.transform(_ / "ExecUtils")
+
+  object akka{
+    lazy val actor    = Import("akka.actor",          wildcard = true,  akkaLibs)
+    lazy val ask      = Import("akka.pattern.ask",    wildcard = false, akkaLibs)
+    lazy val logging  = Import("akka.event.Logging",  wildcard = false, akkaLibs)
+  }
+
+  object scala{
+    lazy val concurrent = Import("scala.concurrent",  wildcard = true,  Nil)
+    lazy val duration =   concurrent.transform(_ / "duration")
+  }
+
+  private def akkaLibs = Seq(Libs.akka.actor())
 }
 
 /** Reads dependencies from a line (or lines, aggregated by '\') and removes the definitions
