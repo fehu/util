@@ -38,14 +38,15 @@ trait SourceProcessorHelper {
 
   def prependToEachLine(what: String, to: String) = to.split('\n').map(what + _).mkString("\n")
   
-  def uniteAggregated(str: String) = {
+  def uniteAggregated(separator: String = " ")(str: String) = {
     str.split('\n').map(_.trim) match{
       case Array() => sys.error("empty string")
       case Array(oneLine) => oneLine.trim.ensuring(l => !l.lastOption.exists(_ == '\\'), "unaggregated \\ encountered")
-      case lines => {
+      case ll => {
+        val lines = ll.filter("\\" !=).toSeq
         lines.dropRight(1).map(_.ensuring(_.endsWith("\\"), "no aggregation symbol encountered").dropRight(1).trim) :+
           lines.last.ensuring(l => !l.endsWith("\\"), "unexpected \\")
-      }.mkString(" ")
+      } mkString separator
     }
 
   }

@@ -5,7 +5,7 @@ import scala.util.matching.Regex
 
 case class ProcessorCall(name: String, params: Seq[String] = Nil)
 
-object UniversalProcessor extends ScopedState[UniversalProcessorLibs](impl.UniversalProcessorImpl())
+object UniversalProcessor extends ScopedState[UP](impl.UniversalProcessorImpl())
 
 /** Combines various processors
  */
@@ -48,6 +48,8 @@ trait ProcessorConfigSourceParser extends SourceProcessorHelper{
   val configRegex: Regex
   def configArgsSeparators: Array[Char]
 
+  def confReplacePolicy: SourceProcessorHelper#Replace
+
   assert(configSeparators.intersect(configArgsSeparators).isEmpty, "config and args separators sets intersect!")
 
   /**
@@ -64,17 +66,9 @@ trait ProcessorConfigSourceParser extends SourceProcessorHelper{
     apply(calls)(source)
   }
 
-  protected val escapedRegex = """\s+\\\s+""".r
-
   protected def extractConfig(source: StringBuilder, erase: Boolean) =
-    extractAndReplace(source, allMatchesWithAggregatedLines(source.mkString, ConfigKey.r))(ConfigKey.len, 0){
-      _ => if(erase) Some("") else None
-    }
-//      .flatMap{
-//      case escaped if escapedRegex.findFirstIn(escaped).isDefined =>
-//        escapedRegex.split(escaped).map(_.trim)
-//      case str => Seq(str)
-//    }
+    extractAndReplace(source, allMatchesWithAggregatedLines(source.mkString, ConfigKey.r))(ConfigKey.len, 0) _ apply
+      confReplacePolicy map uniteAggregated(configSeparators.head.toString)
 
 }
 

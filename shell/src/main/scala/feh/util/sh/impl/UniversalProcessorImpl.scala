@@ -10,12 +10,13 @@ import feh.util.Platform
  * @param processorByName
  */
 class UniversalProcessorImpl(val processorByName: Map[String, SourceProcessor],
-                             val configKey: String, 
+                             val configKey: String,
                              importKeyword: String,
                              importByKey: PartialFunction[String, Seq[Import]],
                              importsPredefined: Seq[Import],
                              dependencyKeyword: String,
-                             predefinedDependencies: Seq[LibInfo])
+                             predefinedDependencies: Seq[LibInfo],
+                             val confReplacePolicy: SourceProcessorHelper#Replace)
   extends UniversalProcessorLibs
   with ProcessorConfigSourceParser 
   with ProcessorConfigSourceParserAllKey
@@ -67,16 +68,19 @@ object UniversalProcessorImpl{
 
   def dependenciesPredef = Libs.scala.library(scalaVersion) :: Libs.feh.util :: Nil
 
+  def confReplace = SourceProcessorHelper.replace.remove
+
   def apply(processors: Map[String, SourceProcessor] = processors,
             configKey: String = configKey,
             importKeyword: String = importKeyword,
             importKeys: Map[String, Seq[Import]] = importKeys,
             importsPredef: List[Import] = importsPredef,
             dependencyKeyword: String = dependencyKeyword,
-            dependenciesPredef: Seq[LibInfo] = dependenciesPredef) =
-    new UniversalProcessorImpl(processors, configKey,
-                               importKeyword, importKeys, importsPredef,
-                               dependencyKeyword, dependenciesPredef)
+            dependenciesPredef: Seq[LibInfo] = dependenciesPredef,
+            confReplace: SourceProcessorHelper#Replace = confReplace) =
+    new UniversalProcessorImpl(processors, configKey, importKeyword,
+                               importKeys, importsPredef,
+                               dependencyKeyword, dependenciesPredef, confReplace)
 
   def scalaVersion = Platform.scalaVersion
 }

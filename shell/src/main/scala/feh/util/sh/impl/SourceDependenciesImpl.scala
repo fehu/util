@@ -17,7 +17,7 @@ class SourceImportsExtractorImpl(val importKey: String,
   /** reads and removes import definitions from source */
   protected def extractImports(source: StringBuilder, params: Seq[String]) =
     extractAndReplace(source, allMatchesWithAggregatedLines(source.mkString, importKey.r))(
-      importKey.length, 0)(replacePolicy) map uniteAggregated flatMap extract
+      importKey.length, 0)(replacePolicy) map uniteAggregated() flatMap extract
 
   def extract(s: String) = s.split("\\s+").toSeq
 
@@ -76,7 +76,7 @@ class SourceDependenciesExtractorImpl(val dependencyKey: String,
   /** reads and removes import definitions from source */
   protected def extractDependencies(source: StringBuilder, params: Seq[String]) =
     extractAndReplace(source, allMatchesWithAggregatedLines(source.mkString, dependencyKey.r))(
-      dependencyKey.length, 0)(replacePolicy) map uniteAggregated flatMap extract
+      dependencyKey.length, 0)(replacePolicy) map uniteAggregated() flatMap extract
 
   protected def extract(depsConf: String): Seq[LibInfo] = {
     val src = new StringBuilder(depsConf)

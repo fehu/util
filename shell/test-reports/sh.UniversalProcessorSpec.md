@@ -12,28 +12,41 @@
                                                 args:   $1, $2, ..., $N  => args(1), args(2), ..., args(N) (+)                
                                                 object: ##name           => object name (+)            
                         shortcuts must not affect strings and the following expressions                             
-                                                var:    "$arg = $value" TODO (*)                
-                                                val:    "c$arg = c$value" TODO (*)                
-                                                args:   evidence$1, evidence$2 TODO (*)                
-                                                object: x.## max 2, "##ERROR" TODO (*)            
+                                                var:    "$arg = $value" (+)                
+                                                val:    "c$arg = c$value" (+)                
+                                                args:   evidence$1, evidence$2 (+)                
+                                                object: x.## max 2, "##ERROR" (+)            
                         Multiline config:                                                                           
-                                                several #conf keywords in the begining of the source (+)                
-                                                several #conf keywords in different parts of the source (+)                
-                                                multi-line, escaped by '\' TODO (*)        
-                        | all |       key for enabling all the features listed above (+)            
+                                several 
+                                #conf keywords in the begining of the source (+)                
+                                several 
+                                #conf keywords in different parts of the source (+)                
+                                                multi-line, escaped by '\' (+)        
+                | 
+                #all |      key for enabling all the features listed above (+)            
             
                         Dependency management                                                                       
-                                                by package *name*, *group* and *version* TODO (*)                
-                                                by package *name* and *group*, choosing latest version TODO (*)                
-                                                by package *name* only TODO (*)                
-                                                all dependency management methods support scala versioning TODO (*)        
+                                                by package *name*, *group* and *version* (+)                    
+                                                            supports scala versioning (+)                
+                                                by package *name* and *group*, choosing latest version (+)                    
+                                                            supports scala versioning (+)                
+                                                by package *name* only (+)                    
+                                                            supports scala versioning (+)        
         
-                        Quick imports TODO (*)        
+                Quick imports by predefined keys:                                                               
+                                                'file'       => feh.util.FileUtils._ (+)                
+                                                'exec'       => feh.util.ExecUtils._ (+)                
+                                                'akka'       => akka.actor._, akka.pattern.ask, akka.event.Logging, (+)                                
+                                                                scala.concurrent._, scala.concurrent.duration._                 
         
-                        Predefined imports TODO (*)        
+                Predefined imports                                                              
+                        import feh.util._
         
-                        Predefined dependencies TODO (*)                                                                                        
-                                                                                                                                                                                
+                Predefined dependencies:                                                                    
+                        org.scala-lang % scala-library % 2.11.1
+                        feh.util %% util % 1.0.4
+            
+                                                                                                    
 | UniversalProcessor |
-| Finished in 20 ms |
-| 22 examples, 23 expectations, 0 failure, 0 error, 12 pending |
+| Finished in 1 ms |
+| 24 examples, 25 expectations, 0 failure, 0 error |

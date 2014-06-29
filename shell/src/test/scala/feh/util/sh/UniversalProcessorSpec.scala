@@ -16,6 +16,9 @@ object UniversalProcessorSpec{
   def uprocessor = UniversalProcessor.get
 
   def process = uprocessor.process(_: mutable.StringBuilder)
+  
+  def cKey = uprocessor.configKey
+  def aKey = uprocessor.allKey
 }
 
 class UniversalProcessorSpec extends Specification{
@@ -32,36 +35,39 @@ class UniversalProcessorSpec extends Specification{
                 args:   $$1, $$2, ..., $$N  => args(1), args(2), ..., args(N)           ${parse().shortArgs}
                 object: ##name           => object name                                 ${parse().shortObject}
             shortcuts must not affect strings and the following expressions             $end
-                var:    "$$arg = $$value"                                               $todo
-                val:    "c$$arg = c$$value"                                             $todo
-                args:   evidence$$1, evidence$$2                                        $todo
-                object: x.## max 2, "##ERROR"                                           $todo
+                var:    "$$arg = $$value"                                               ${ignore().shortVar}
+                val:    "c$$arg = c$$value"                                             ${ignore().shortVal}
+                args:   evidence$$1, evidence$$2                                        ${ignore().shortArg}
+                object: x.## max 2, "##ERROR"                                           ${ignore().shortObj}
             Multiline config:                                                           $end
-                several #conf keywords in the begining of the source                    ${parse().allHeader}
-                several #conf keywords in different parts of the source                 ${parse().allAnywhere}
-                multi-line, escaped by '\'                                              $todo
-        | all |       key for enabling all the features listed above                    ${parse().allKey}
+                several ${_conf} keywords in the begining of the source                 ${parse().allHeader}
+                several ${_conf} keywords in different parts of the source              ${parse().allAnywhere}
+                multi-line, escaped by '\'                                              ${parse().multiline}
+        | ${_all} |      key for enabling all the features listed above                 ${parse().allKey}
 
             Dependency management                                                       $end
                 by package *name*, *group* and *version*                                ${depend().byAll}
-                        supports scala versioning                                       ${depend().scala.byAll}
+                    supports scala versioning                                           ${depend().scala.byAll}
                 by package *name* and *group*, choosing latest version                  ${depend().autoVer}
-                        supports scala versioning                                       ${depend().scala.autoVer}
+                    supports scala versioning                                           ${depend().scala.autoVer}
                 by package *name* only                                                  ${depend().byName}
-                        supports scala versioning                                       ${depend().scala.byName}
+                    supports scala versioning                                           ${depend().scala.byName}
 
         Quick imports by predefined keys:                                               $end
                 'file'       => feh.util.FileUtils._                                    ${imports().file}
                 'exec'       => feh.util.ExecUtils._                                    ${imports().exec}
                 'akka'       => akka.actor._, akka.pattern.ask, akka.event.Logging,     ${imports().akka}
-                                  scala.concurrent._, scala.concurrent.duration._       $end
+                                scala.concurrent._, scala.concurrent.duration._         $end
 
         Predefined imports                                                              ${imports().print(16)}
 
-        Predefined dependencies:                                                        ${depend().print(16)}
+        Predefined dependencies:                                                        ${depend().print(12)}
                                                                                         """
 
   import UniversalProcessorSpec._
+
+  def _conf = Text(cKey)
+  def _all = Text(aKey)
 
   case class parse(){
     def shLine      = tt(process, 1, ExpectedTransforms.shLine)
@@ -74,16 +80,17 @@ class UniversalProcessorSpec extends Specification{
     def allHeader   = tt(process, 4, ExpectedTransforms.all)
     def allAnywhere = (testTransform _).tupled(ExpectedTransforms.merged)(process)
     def allKey      = tt(process, 1, ExpectedTransforms.allKey)
+    def multiline   = tt(process, 0, ExpectedTransforms.multiline)
 
     val short = Short(process)
     
     def shSurround(sh: String) = "_root_.feh.util.shell.Exec(\"\"\"" + sh + "\"\"\")"
 
-    def shLineHeader =                  "#conf sh-line"
+    def shLineHeader =                 s"$cKey sh-line"
     def shLineExpr =                    "#sh ls -al | grep scala"
     def shLineExpected =   shSurround(  "ls -al | grep scala"  )
 
-    def shBlockHeader =                 "#conf sh-block"
+    def shBlockHeader =                s"$cKey sh-block"
     def shBlockExpr =                 """#sh>
                                         |   if [ x -ne 0 ]; then res=true
                                         |   else res=false
@@ -95,7 +102,7 @@ class UniversalProcessorSpec extends Specification{
                                         |   fi
                                         |""".stripMargin)
 
-    def shortcutsHeader =               "#conf shortcuts"
+    def shortcutsHeader =              s"$cKey shortcuts"
     def shortcutVal =                   "c$g = 9.80665" -> "val g = 9.80665"
     def shortcutVar =                   "$count   =  0" -> "var count =  0"
     def shortcutArg =                   "$1 +  $2"      -> "args(1) +  args(2)"
@@ -133,7 +140,7 @@ class UniversalProcessorSpec extends Specification{
                                                                   """
                                      |""".stripMargin
 
-    def allConf = "#conf #all"
+    def allConf = s"$cKey $aKey"
 
     object ExpectedTransforms{
       def shLine      = (shLineHeader,        shLineExpr,         shLineExpected)
@@ -154,11 +161,14 @@ class UniversalProcessorSpec extends Specification{
         case (src, expected) => src.mkString("\n") -> expected.mkString("\n")
       }
 
+      def multiline = (multi(allLines._1), allLines._2.mkString("\n"), allLines._3.mkString("\n", "\n", ""))
+
+      private def multi(lines: Seq[String]) = cKey + lines.map(_.drop(cKey.length)).mkString("\\\n\t\t", "\\\n\t\t", "")
       private def eSeq = Seq.empty[String]
     }
 
-    protected def tt(process: StringBuilder => StringBuilder, prependNewLines: Int, tuple: (String, String, String)) =
-      testTransform(tuple._1 + "\n" + tuple._2, "\n"*prependNewLines + tuple._3)(process)
+    protected def tt(process: StringBuilder => StringBuilder, prependNewLines: Int, example: (String, String, String)) =
+      testTransform(example._1 + "\n" + example._2, "\n"*prependNewLines + example._3)(process)
     protected def getTransform(source: String, process: StringBuilder => StringBuilder) = {
       val src = new StringBuilder(source)
       process(src).mkString
@@ -199,6 +209,22 @@ class UniversalProcessorSpec extends Specification{
       transformQ.dequeue()
       // init in the correct order
       const; variable; arguments; `object`
+    }
+  }
+
+  case class ignore(){
+    def shortVar = unchanged(shortVarSrc, process)
+    def shortVal = unchanged(shortVarSrc, process)
+    def shortArg = unchanged(shortVarSrc, process)
+    def shortObj = unchanged(shortVarSrc, process)
+
+    def shortVarSrc = """ "$arg = $value" """
+    def shortValSrc = """ "c$arg = c$value" """
+    def shortArgSrc = "evidence$1; evidence$2"
+    def shortObjSrc = "x.## max 2; \"##ERROR\""
+
+    protected def unchanged(src: String, process: StringBuilder => StringBuilder) = new StringBuilder(src) |> {
+      sb => process(sb) ==== sb
     }
   }
 
