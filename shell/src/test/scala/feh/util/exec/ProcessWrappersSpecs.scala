@@ -3,7 +3,6 @@ package feh.util.exec
 import org.specs2._
 import scala.concurrent.duration.FiniteDuration
 import feh.util._
-import akka.actor.ActorSystem
 import scala.concurrent.{Future, Await}
 import scala.util.Try
 import org.specs2.specification.Fragments

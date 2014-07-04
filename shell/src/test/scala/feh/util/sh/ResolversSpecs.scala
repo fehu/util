@@ -1,8 +1,8 @@
 package feh.util.sh
 
 import org.specs2.Specification
-import feh.util.sh.exec.{ScalaResolver, LibInfo, ScalaVersion, ClassPathResolver}
-import scala.util.{Failure, Success, Try, Properties}
+import feh.util.sh.exec.{ScalaResolver, LibInfo, ClassPathResolver}
+import scala.util.{Failure, Success, Try}
 import feh.util.{Tests, Platform}
 import feh.util.exec.{ProcessReaderWrappers, SbtHelper}
 import scala.concurrent.Await
@@ -11,7 +11,7 @@ import org.specs2.execute.{Result, Error}
 import org.specs2.matcher.MatchResult
 
 trait ResolversSpecsHelper{
-  def scalaVersion = ScalaVersion(Platform.scalaVersion.getOrElse(sys.error("Couldn't determine scala version")))
+  def scalaVersion = Platform.scalaVersion
 }
 
 object ClassPathResolverSpec extends ResolversSpecsHelper{
@@ -21,9 +21,15 @@ object ClassPathResolverSpec extends ResolversSpecsHelper{
 class ClassPathResolverSpec extends Specification with SbtHelper{
   def is =                                                  s2""" ${ "ClassPathResolver".title }
     `ClassPathResolver` resolves path to library jar        $end
-      in *ivy*                                              $end
+      in *ivy* by group, name and version                   $end
         cache                                    $inIvyCache$end
         local                                    $inIvyLocal$end
+      in *ivy* by group and name (last version)             $end
+        cache                                          $todo$end
+        local                                          $todo$end
+      in *ivy* by name (experimental)                       $end
+        cache                                          $todo$end
+        local                                          $todo$end
     in local *maven* repo                         $inMaven$end
     unmanaged                                   $unmanaged$end
                                                             """

@@ -16,8 +16,8 @@ trait PrintIndents {
   
   /** print line with indent
    */
-  def printlni(str: String)(implicit p: Param){
-    p.b ++= " " * (p.indent * p.depthState.get) + str + "\n"
+  def printlni(any: Any)(implicit p: Param){
+    p.b ++= " " * (p.indent * p.depthState.get) + any.toString + "\n"
   }
 
   def nextDepth[R](f: => R)(implicit p: Param) = p.withDepth(1+)(f)

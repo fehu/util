@@ -1,12 +1,18 @@
 ## ClassPathResolver
   
      `ClassPathResolver` resolves path to library jar              
-            in *ivy*                                                      
+            in *ivy* by group, name and version                           
                         cache (+)        
-                        local (+)    
+                        local (+)      
+            in *ivy* by group and name (last version)                     
+                        cache TODO (*)        
+                        local TODO (*)      
+            in *ivy* by name (experimental)                               
+                        cache TODO (*)        
+                        local TODO (*)    
             in local *maven* repo TODO (*)    
             unmanaged TODO (*)                                                            
                                                                                                                         
 | ClassPathResolver |
-| Finished in 16 ms |
-| 4 examples, 5 expectations, 0 failure, 0 error, 2 pending |
+| Finished in 19 ms |
+| 8 examples, 9 expectations (+1), 0 failure, 0 error (-3), 6 pending (+4) |

@@ -302,7 +302,16 @@ trait FileUtils {
 
   }
 
+  // default string to path wrapper, uses File.separator to split the string
   implicit def stringToPath(string: String) = Path(string)
+
+  implicit class StringToPath(str: String){
+    def pathBy(separatorRegex: String): RelativePath = RelativePath(str.split(separatorRegex))
+    def pathBy(separator: Char): RelativePath = RelativePath(str.split(separator))
+
+    def pathBy(start: String, separatorRegex: String): AbsolutePath = str.trim.ensuring(_.startsWith(start), "isn't absolute")
+      .drop(start.length).split(separatorRegex).toList |> AbsolutePath.apply
+  }
 
   object \ {
     def unapply(path: Path): Option[(String, Path)] = path.rHeadOpt map (_ -> path.rTail)
@@ -364,7 +373,7 @@ trait FileUtils {
       else reversed.tails.map(p => Path(p.reverse, absolute))
 
     override def equals(obj: scala.Any): Boolean = PartialFunction.cond(obj) {
-      case p: Path if p.absolute == this.absolute || p.reversed == this.reversed => true
+      case p: Path if p.absolute == this.absolute && p.reversed == this.reversed => true
     }
     def toAbsolute: AbsolutePath
     def toRelative: RelativePath

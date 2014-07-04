@@ -1,13 +1,19 @@
 package feh.util.sh.exec
 
-import feh.util.FileUtils.{AbsolutePath, Path}
-import feh.util.ScopedState
+import feh.util.FileUtils.Path
+import feh.util.{ScalaVersion, ScopedState}
 import scala.util.Try
 import java.io.File
 
-sealed trait ImportInfo
-  case class LibInfo(group: String, name: String, version: String, meta: LibInfoMeta) extends ImportInfo
-  case class Import(path: Path, wildcard: Boolean, libs: Seq[LibInfo]) extends ImportInfo
+sealed trait DependencyInfo
+  case class LibInfo(group: String, name: String, version: String, meta: LibInfoMeta) extends DependencyInfo{
+    def last = copy(version = "_")
+
+    def isScala = PartialFunction.cond(meta){ case Managed(b) => b }
+
+    override def toString = s"$group ${if(isScala) "%%" else "%"} $name % $version"
+  }
+  case class Import(path: Path, wildcard: Boolean, libs: Seq[LibInfo]) extends DependencyInfo
   {
     def transform(fpath: Path => Path = identity,
                   wildcard: Boolean = this.wildcard,
@@ -16,8 +22,8 @@ sealed trait ImportInfo
       Import(fpath(path), wildcard, flibs(libs))
   }
 
-object ImportInfo{
-  implicit class ImportInfoSeqOps(ii: Seq[ImportInfo]){
+object DependencyInfo{
+  implicit class ImportInfoSeqOps(ii: Seq[DependencyInfo]){
     def extractLibs = ii.flatMap{
       case lib: LibInfo => Seq(lib)
       case Import(_,_,libs) => libs
@@ -27,6 +33,10 @@ object ImportInfo{
 
 trait LibInfoMeta
   case class Managed(dependsOnScala: Boolean) extends LibInfoMeta
+  object Managed{
+    def scala = Managed(dependsOnScala = true)
+    def java = Managed(dependsOnScala = false)
+  }
   case class Unmanaged(path: Path) extends LibInfoMeta
 case class LibPath(inf: LibInfo, path: Path)
 
@@ -34,9 +44,6 @@ case class ClassPath(libs: LibPath*){
   def paths = libs.map(_.path)
   def asString = paths.mkString(File.pathSeparator)
   override def toString = s"ClassPath($asString)"
-}
-case class ScalaVersion(version: String){
-  def complies(v: String) = version == "_" || v == version || (v.startsWith(version) && !v.contains("-"))
 }
 
 trait ClassPathResolver{
