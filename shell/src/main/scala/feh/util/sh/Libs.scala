@@ -1,8 +1,8 @@
 package feh.util.sh
 
-import feh.util.sh.exec.{Managed, LibInfoMeta, LibInfo}
+import feh.util.sh.exec.{Managed, LibInfo}
 import feh.util.ScalaVersion
-import com.typesafe.config.{ConfigFactory, Config}
+import com.typesafe.config.ConfigFactory
 
 object Libs {
   object feh{

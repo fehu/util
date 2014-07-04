@@ -36,18 +36,6 @@ abstract class SourceShLineProcessor(val keyShLine: String) extends SourceShProc
   def process(source: StringBuilder, params: String*) = source $$ {
     extractAndReplace(source, allMatchesWithAggregatedLines(source.toString(), shLine.r))(shLine.len, 0)(shExecInj): Unit
   }
-
-  //replaceShLines(source)
-
-//  def replaceShLines(code: StringBuilder) =
-//    allMatchesWithAggregatedLines(code.toString(), shLine.r)
-//      .sortBy(_._1)
-//      .foldRight(code){
-//        case ((start, end), acc) =>
-//          val orig = acc.substring(start+shLine.len, end)
-//          acc.replace(start, end, shExecInj(orig))
-//      }
-
 }
 
 /** Processes expressions of form "$key_start multiline_expressions $key_end"
@@ -75,22 +63,6 @@ abstract class SourceShBlockProcessor(val keyShStart: String, val keyShEnd: Stri
     source
   }
 
-//    replaceShBlocks(source)
-
-  //  def replaceShBlocks(code: StringBuilder) = {
-//    val c = code.toString()
-//    val starts = shStart.r.findAllMatchIn(c).toList map (_.start)
-//    val ends = shEnd.r.findAllMatchIn(c).toList map (_.start)
-//    assert(starts.length == ends.length, "unbalanced sh blocks")
-//    val ranges = starts.zip(ends).ensuring(_.forall(p => p._1 < p._2), "sh block close precedes open")
-//    ranges.foreach{
-//      case (start, end) =>
-//        val orig = code.substring(start+shStart.len, end)
-//        val replacement = shExecInj(orig)
-//        code.replace(start, end+shEnd.len, replacement)
-//    }
-//    code
-//  }
 }
 
 case class Replacements(get: List[(Regex, String)])

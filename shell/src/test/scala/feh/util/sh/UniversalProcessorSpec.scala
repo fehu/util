@@ -66,8 +66,8 @@ class UniversalProcessorSpec extends Specification{
 
   import UniversalProcessorSpec._
 
-  def _conf = Text(cKey)
-  def _all = Text(aKey)
+  def _conf = cKey
+  def _all  = aKey
 
   case class parse(){
     def shLine      = tt(process, 1, ExpectedTransforms.shLine)

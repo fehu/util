@@ -2,7 +2,7 @@ package feh.util.sh
 
 import org.specs2.Specification
 import feh.util.sh.exec.{ScalaResolver, LibInfo, ClassPathResolver}
-import scala.util.{Failure, Success, Try, Properties}
+import scala.util.{Failure, Success, Try}
 import feh.util.{Tests, Platform}
 import feh.util.exec.{ProcessReaderWrappers, SbtHelper}
 import scala.concurrent.Await

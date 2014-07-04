@@ -22,7 +22,6 @@ trait UniversalProcessor extends SourceProcessor{
         c =>
           processorByName(c.name).process(sb, c.params: _*)
       }
-//      processorByName.withFilter(names contains _._1).foreach(_._2.process(sb))
   }
 }
 

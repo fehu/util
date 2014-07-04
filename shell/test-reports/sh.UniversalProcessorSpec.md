@@ -17,13 +17,10 @@
                                                 args:   evidence$1, evidence$2 (+)                
                                                 object: x.## max 2, "##ERROR" (+)            
                         Multiline config:                                                                           
-                                several 
-                                #conf keywords in the begining of the source (+)                
-                                several 
-                                #conf keywords in different parts of the source (+)                
+                                                several #conf keywords in the begining of the source (+)                
+                                                several #conf keywords in different parts of the source (+)                
                                                 multi-line, escaped by '\' (+)        
-                | 
-                #all |      key for enabling all the features listed above (+)            
+                        | #all |      key for enabling all the features listed above (+)            
             
                         Dependency management                                                                       
                                                 by package *name*, *group* and *version* (+)                    
@@ -48,5 +45,5 @@
             
                                                                                                     
 | UniversalProcessor |
-| Finished in 1 ms |
+| Finished in 8 ms |
 | 24 examples, 25 expectations, 0 failure, 0 error |
