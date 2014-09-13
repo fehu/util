@@ -153,6 +153,7 @@ trait Util extends RandomWrappers{
 
   implicit class MapWrapper[A, B](tr: Map[A, B]){
     def mapKeys[R](f: A => R) = tr.map{case (k, v) => f(k)-> v}
+    def zipMap[R](f: ((A, B)) => R) = tr.map{case p@(k, _) => k -> f(p)}
   }
 
 
