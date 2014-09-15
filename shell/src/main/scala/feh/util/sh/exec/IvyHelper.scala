@@ -1,6 +1,6 @@
 package feh.util.sh.exec
 
-import feh.util.FileUtils._
+import feh.util.file._
 import feh.util._
 
 trait IvyHelper {

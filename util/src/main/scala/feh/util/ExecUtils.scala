@@ -3,7 +3,7 @@ package feh.util
 import java.lang.ProcessBuilder.Redirect
 import java.io.File
 import java.text.NumberFormat
-import feh.util.FileUtils._
+import feh.util.file._
 
 object ExecUtils extends ExecUtils
 trait ExecUtils extends Debugging{

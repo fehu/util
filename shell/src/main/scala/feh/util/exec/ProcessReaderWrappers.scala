@@ -1,11 +1,11 @@
 package feh.util.exec
 
 
-import feh.util.ExecUtils
+import feh.util.{Path, ExecUtils}
 import akka.actor.{PoisonPill, ActorRef, ActorSystem}
 import akka.actor.ActorDSL._
 import akka.pattern.ask
-import feh.util.FileUtils.{Path, File}
+import feh.util.file._
 import scala.concurrent.duration._
 import scala.concurrent.{Future, Await}
 import java.io.{IOException, InputStream}

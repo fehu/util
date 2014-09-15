@@ -1,8 +1,9 @@
 package feh.util.sh.impl
 
+import feh.util.Path
 import feh.util.sh._
 import feh.util.sh.exec._
-import feh.util.FileUtils._
+import feh.util.file._
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 import feh.util.sh.exec.Import

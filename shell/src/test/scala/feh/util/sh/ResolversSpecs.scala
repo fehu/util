@@ -9,6 +9,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.FiniteDuration
 import org.specs2.execute.{Result, Error}
 import org.specs2.matcher.MatchResult
+import feh.util.file._
 
 trait ResolversSpecsHelper{
   def scalaVersion = Platform.scalaVersion

@@ -4,8 +4,11 @@ utils
 
 **util** package contains utilities for 
 
+* *file*       file wrappers, streams write/read helpers,
+    * output streams: `File(target / (gen.name + ".html")).withOutputStream(File.write.utf8(xml), append = false)`
+    * input streams:  `file.withInputStream(File.read[List[String]])`
+    * wrapped file: `file.cp(target / path, overwrite = true)`
 * *ExecUtils*       basic process execution
-* *FileUtils*       file wrappers, streams write/read helpers, `Path` 
 * *PrintIndents*    utilities for printing into `StringBuilder` with indents
 * *ScopedState[T]*  guards a `ThreadLocal[T]` variable, providing methods
     * `def get: T` returns current state value
@@ -18,6 +21,7 @@ utils
     * The fixed point combinator `def Y[A, B](rec: (A => B) => (A => B)): A => B`
     * and it's cached version `CY`, that guards intermediate results for [faster performance](https://gist.github.com/fehu/7615890) 
     * random choice wrappers
+    * `Path`, `PathSelector`
     * and more
 
 **compiler** package contains 

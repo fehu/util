@@ -1,8 +1,8 @@
 package feh.util.sh.exec
 
-import feh.util.FileUtils._
+import feh.util.file._
 import feh.util.sh.UniversalProcessorLibs
-import feh.util.{ScalaVersion, Platform, ScopedState}
+import feh.util.{Path, ScalaVersion, Platform, ScopedState}
 
 trait ScriptExecutor {
   def exec(path: Path)

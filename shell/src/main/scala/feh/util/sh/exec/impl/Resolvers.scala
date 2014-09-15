@@ -2,7 +2,7 @@ package feh.util.sh.exec.impl
 
 import feh.util.sh.exec._
 import feh.util._
-import feh.util.FileUtils._
+import feh.util.file._
 import feh.util.sh.Libs
 import scala.util.Try
 

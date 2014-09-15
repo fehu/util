@@ -1,7 +1,6 @@
 package feh.util.sh.exec
 
-import feh.util.FileUtils.Path
-import feh.util.{ScalaVersion, ScopedState}
+import feh.util.{Path, ScalaVersion, ScopedState}
 import scala.util.Try
 import java.io.File
 
