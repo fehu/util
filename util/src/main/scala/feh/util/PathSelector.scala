@@ -6,7 +6,7 @@ import feh.util.Path.EmptyPath
 case class PathSelector(rootPath: Path, selection: List[Selection] = Nil) {
 
   def select(path: RelativePath) = copy(selection = selection :+ PathSelection(PathSelector(path)))
-  def select(path: PathSelection) = copy(selection = selection :+ path)
+  def select(path: PathSelector) = copy(selection = selection :+ PathSelection(path))
   def select(filter: String => Boolean) = copy(selection = selection :+ WithFilter(filter))
   def selectAll() = copy(selection = selection :+ All)
 
