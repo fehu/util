@@ -4,6 +4,7 @@ package feh.util
 import java.io.File
 
 import feh.util.Path.EmptyPath
+import feh.util.PathSelector.{WithFilter, All}
 
 sealed trait Path{
   def separatorChar: Char
@@ -73,7 +74,11 @@ trait PathImplicits{
   implicit def pathSelectorWrapper(path: Path) = PathSelector(path)
   implicit class PathSelectorWrapper(path: Path){
     def /(next: PathSelector): PathSelector = next.copy(path / next.rootPath.toRelative)
+    def /(a: *.type): PathSelector = PathSelector.all(path)
+    def /?(filter: String => Boolean): PathSelector = PathSelector(path, WithFilter(filter) :: Nil)
   }
+
+  case object *
 
 }
 

@@ -23,6 +23,7 @@ case class PathSelector(rootPath: Path, selection: List[Selection] = Nil) {
 
 object PathSelector{
   def empty = PathSelector(EmptyPath)
+  def all(path: Path) = PathSelector(path, All :: Nil)
 
   trait Selection
 
