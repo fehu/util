@@ -8,10 +8,14 @@ import scala.util.matching.Regex
 
 trait Util extends RandomWrappers{
   type I[T] = T => T
+  type Y[A, B] = (A => B) => A => B
+  type Y2[A1, A2, B] = ((A1, A2) => B) => (A1, A2) => B
+
   /**
    *  The fixed point combinator
    */
   def Y[A, B](rec: (A => B) => (A => B)): A => B = rec(Y(rec))(_: A)
+  def Y2[A1, A2, B](rec: ((A1, A2) => B) => ((A1, A2) => B)): (A1, A2) => B = rec(Y2(rec))(_: A1, _: A2)
 
   def CY[A, B](rec: (A => B) => (A => B)): A => CYResult[A, B] = {
     val cache = mutable.HashMap.empty[A, B]
@@ -224,7 +228,10 @@ trait Util extends RandomWrappers{
   implicit class ImplicitApplySeqWrapper[A](seq: Seq[A]){
     def implicitlyMapTo[B](implicit convert: A => B) = seq.map(convert)
   }
-  
+
+  implicit def toRunnableWrapper(func: () => Any): Runnable = new Runnable {
+    def run() = func()
+  }
 }
 
 case object up extends Exception
