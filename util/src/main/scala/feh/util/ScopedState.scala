@@ -42,6 +42,12 @@ object AbstractScopedState{
   }
 }
 
+class ThreadUnsafeScopedState[T](val default: T) extends AbstractScopedState[T]{
+  protected var _state = default
+  protected def state_=(t: T): Unit = _state = t
+  def get: T = _state
+}
+
 trait ScopedInThreadState[T] extends AbstractScopedState[T]{
   private val _state = new ThreadLocal[T]{
     override def initialValue(): T = default
