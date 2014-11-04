@@ -232,6 +232,14 @@ trait Util extends RandomWrappers{
   implicit def toRunnableWrapper(func: () => Any): Runnable = new Runnable {
     def run() = func()
   }
+
+  implicit final class EnsuringNot[A](private val self: A) {
+    def ensuringNot(cond: Boolean): A = { assert(!cond); self }
+    def ensuringNot(cond: Boolean, msg: => Any): A = { assert(!cond, msg); self }
+    def ensuringNot(cond: A => Boolean): A = { assert(!cond(self)); self }
+    def ensuringNot(cond: A => Boolean, msg: => Any): A = { assert(!cond(self), msg); self }
+  }
+
 }
 
 case object up extends Exception
