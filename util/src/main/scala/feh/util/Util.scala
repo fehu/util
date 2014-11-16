@@ -247,8 +247,8 @@ trait Util extends RandomWrappers{
       seq.filter{
         a =>
           val b = f(a)
-          val res = present contains b
-          if (!res) present += b
+          val res = !(present contains b)
+          if (res) present += b
           res
       }
     }
