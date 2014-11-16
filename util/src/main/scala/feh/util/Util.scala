@@ -240,6 +240,21 @@ trait Util extends RandomWrappers{
     def ensuringNot(cond: A => Boolean, msg: => Any): A = { assert(!cond(self), msg); self }
   }
 
+  implicit class SeqDistinctByWrapper[A](seq: Seq[A]) {
+    def distinctBy[B](f: A => B) = {
+      var present = Set.empty[B]
+
+      seq.filter{
+        a =>
+          val b = f(a)
+          val res = present contains b
+          if (!res) present += b
+          res
+      }
+    }
+  }
+
+
 }
 
 case object up extends Exception
