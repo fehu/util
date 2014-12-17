@@ -1,6 +1,5 @@
 import sbt._
 import Keys._
-import org.sbtidea.SbtIdeaPlugin._
 import Dependencies._
 import Resolvers._
 
@@ -26,16 +25,21 @@ object Build extends sbt.Build {
     TestSettings.autoAddReportsToGit := true
   )
 
+  object Licenses{
+    lazy val MIT = "MIT" -> url("http://opensource.org/licenses/MIT")
+  }
+
   // // // // // //  projects  // // // // // //
 
   lazy val root = Project(
     id = "root",
     base = file("."),
     settings = buildSettings ++ testSettings ++ Seq(
-      version := MainVersion
+      version := MainVersion,
+      homepage := Some(url("https://github.com/fehu/util")),
+      licenses += Licenses.MIT
     )
-  ) .settings(ideaExcludeFolders := ".idea" :: ".idea_modules" :: Nil)
-    .aggregate(util, compiler, shell)
+  ).aggregate(util, compiler, shell)
 
   lazy val util = Project(
     id = "util",
