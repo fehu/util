@@ -8,7 +8,7 @@ object Build extends sbt.Build {
   val ScalaVersions = Seq("2.11.2", "2.10.3")
   val ScalaVersion = ScalaVersions.head
 
-  val MainVersion = "1.0.5"
+  val MainVersion = "1.0.6-SNAPSHOT"
 
   // // // //  settings presets  // // // //
 
@@ -59,7 +59,7 @@ object Build extends sbt.Build {
     id = "scala-compiler-utils",
     base = file("compiler"),
     settings = buildSettings ++ licenceSettings ++ Seq(
-      version := "0.1",
+      version := "0.2-SNAPSHOT",
       resolvers += Snapshot.sonatype,
       libraryDependencies <++= scalaVersion {sv =>
         Seq(scala.compiler _, scalaRefactoring _).map(_(sv))
@@ -71,7 +71,7 @@ object Build extends sbt.Build {
     id = "shell-utils",
     base = file("shell"),
     settings = buildSettings ++ testSettings ++ licenceSettings ++ Seq(
-      version := "0.1",
+      version := "0.2-SNAPSHOT",
       libraryDependencies ++= Seq(Apache.ioCommons, akka)
     )
   ) dependsOn util

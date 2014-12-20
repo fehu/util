@@ -3,3 +3,4 @@
 - [ ] add Process Command Builder and support commands chaining
 - [ ] write sub project versions into corresponding `CurrentVersion`s on sbt `package`
 - [ ] use sbt-git plugin for publishing;
+- [ ] publishing: fix push;
