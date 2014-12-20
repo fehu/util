@@ -16,7 +16,8 @@ object Build extends sbt.Build {
     organization  := "feh.util",
     scalaVersion := ScalaVersion,
     crossScalaVersions  := ScalaVersions,
-    scalacOptions in (Compile, doc) ++= Seq("-diagrams")
+    scalacOptions in (Compile, doc) ++= Seq("-diagrams"),
+    isSnapshot := version.value.toLowerCase.endsWith("snapshot")
   )
 
 
@@ -29,22 +30,26 @@ object Build extends sbt.Build {
     lazy val MIT = "MIT" -> url("http://opensource.org/licenses/MIT")
   }
 
+  lazy val licenceSettings = Seq(
+    homepage := Some(url("https://github.com/fehu/util")),
+    licenses += Licenses.MIT
+  )
+
   // // // // // //  projects  // // // // // //
 
   lazy val root = Project(
     id = "root",
     base = file("."),
-    settings = buildSettings ++ testSettings ++ Seq(
+    settings = buildSettings ++ testSettings ++ /*PublishingSettings.get ++*/ Seq(
       version := MainVersion,
-      homepage := Some(url("https://github.com/fehu/util")),
-      licenses += Licenses.MIT
+      publishArtifact := false
     )
   ).aggregate(util, compiler, shell)
 
   lazy val util = Project(
     id = "util",
     base = file("util"),
-    settings = buildSettings ++ Seq(
+    settings = buildSettings ++ licenceSettings ++ Seq(
       version := MainVersion,
       libraryDependencies += Apache.ioCommons
     )
@@ -53,7 +58,7 @@ object Build extends sbt.Build {
   lazy val compiler = Project(
     id = "scala-compiler-utils",
     base = file("compiler"),
-    settings = buildSettings ++ Seq(
+    settings = buildSettings ++ licenceSettings ++ Seq(
       version := "0.1",
       resolvers += Snapshot.sonatype,
       libraryDependencies <++= scalaVersion {sv =>
@@ -65,7 +70,7 @@ object Build extends sbt.Build {
   lazy val shell = Project(
     id = "shell-utils",
     base = file("shell"),
-    settings = buildSettings ++ testSettings ++ Seq(
+    settings = buildSettings ++ testSettings ++ licenceSettings ++ Seq(
       version := "0.1",
       libraryDependencies ++= Seq(Apache.ioCommons, akka)
     )
