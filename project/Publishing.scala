@@ -1,9 +1,13 @@
+package feh.util.sbt
+
 import org.eclipse.jgit.api.Git
 import sbt._
 import Keys._
+import scala.collection.convert.wrapAsScala._
 
-object PublishingSettings extends Plugin{
-  def get = projectSettings
+object GhPublish extends AutoPlugin{
+  override def requires = plugins.IvyPlugin
+  override def trigger = allRequirements
 
   val ghPublish = TaskKey[Unit]("gh-repo-publish", "publish to remote github-based repo")
 
@@ -11,15 +15,15 @@ object PublishingSettings extends Plugin{
   val ghRepoLocalResolver = SettingKey[Option[Resolver]]("gh-repo-local-resolver", "local version of github-based repo project")
   val ghRepoLocalEnv = SettingKey[String]("gh-repo-local-env", "Environment variable with a path to the local version of gh repo project")
 
-  protected val ghSubmit = TaskKey[Unit]("gh-repo-submit", "submit repo changes")
-  protected val ghPush = TaskKey[Unit]("gh-repo-push", "push repo changes")
+  private val ghSubmit = TaskKey[Unit]("gh-repo-submit", "submit repo changes")
+  private val ghPush = TaskKey[Unit]("gh-repo-push", "push repo changes")
 
-  protected val ghPublishConfig = TaskKey[PublishConfiguration]("gh-repo-publish-config")
-  protected val ghPublishLocal = TaskKey[Unit]("gh-repo-publish-local")
-
-
+  private val ghPublishConfig = TaskKey[PublishConfiguration]("gh-repo-publish-config")
+  private val ghPublishLocal = TaskKey[Unit]("gh-repo-publish-local")
 
   override lazy val projectSettings = Seq(
+//    autoCompilerPlugins
+
     // Default Local ghRepo Environment variable
     ghRepoLocalEnv := "LOCAL_GITHUB_REPO",
 
@@ -67,7 +71,8 @@ object PublishingSettings extends Plugin{
     ghSubmit <<= ghSubmit.dependsOn(ghPublishLocal),
     ghPush := {
       val repoDir = ghRepoLocalFile.value getOrElse noGhRepoLocalError(ghRepoLocalEnv.value)
-      Git.open(repoDir).push().call()
+      val pushed = Git.open(repoDir).push().call()
+      streams.value.log.info(pushed.mkString(","))
     },
 
     ghPublish := {
@@ -76,7 +81,6 @@ object PublishingSettings extends Plugin{
     },
 
     aggregate in ghPublish := false
-
   )
 
   private def noGhRepoLocalError(envVar: String) =

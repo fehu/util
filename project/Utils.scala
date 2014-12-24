@@ -1,3 +1,5 @@
+package feh.util.sbt
+
 import sbt._
 import scala.util.matching.Regex
 

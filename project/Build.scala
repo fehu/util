@@ -1,3 +1,4 @@
+import feh.util.sbt.GhPublish
 import sbt._
 import Keys._
 import Dependencies._
@@ -40,7 +41,7 @@ object Build extends sbt.Build {
   lazy val root = Project(
     id = "root",
     base = file("."),
-    settings = buildSettings ++ testSettings ++ /*PublishingSettings.get ++*/ Seq(
+    settings = buildSettings ++ testSettings ++ Seq(
       version := MainVersion,
       publishArtifact := false
     )
