@@ -1,5 +1,5 @@
-resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
+resolvers += "Fehu's github repo" at "http://fehu.github.io/repo"
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.6.4")
+addSbtPlugin("feh.util" % "gh-repo-plugin" % "0.1")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-license-report" % "1.0.0")
