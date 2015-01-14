@@ -1,4 +1,4 @@
-import feh.util.sbt.GhPublish
+import feh.util.TestReportsCopy
 import sbt._
 import Keys._
 import Dependencies._
@@ -22,9 +22,10 @@ object Build extends sbt.Build {
   )
 
 
-  lazy val testSettings = TestSettings.get ++ Seq(
-    TestSettings.copyTestReportsDir <<= baseDirectory(base => Some(base / "test-reports")),
-    TestSettings.autoAddReportsToGit := true
+  lazy val testSettings = TestReportsCopy.settings ++ Seq(
+    libraryDependencies += Dependencies.test.specs2,
+    TestReportsCopy.copyTestReportsDir <<= baseDirectory(base => Some(base / "test-reports")),
+    TestReportsCopy.autoAddReportsToGit := true
   )
 
   object Licenses{
