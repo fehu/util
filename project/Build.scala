@@ -6,8 +6,7 @@ import Resolvers._
 
 object Build extends sbt.Build {
 
-  val ScalaVersions = Seq("2.11.5", "2.10.3")
-  val ScalaVersion = ScalaVersions.head
+  val ScalaVersion = "2.11.5"
 
   val MainVersion = "1.0.7-SNAPSHOT"
 
@@ -15,8 +14,7 @@ object Build extends sbt.Build {
 
   val buildSettings = Defaults.coreDefaultSettings ++ Defaults.defaultConfigs ++ Seq (
     organization  := "feh.util",
-    scalaVersion := ScalaVersion,
-    crossScalaVersions  := ScalaVersions,
+    scalaVersion  := ScalaVersion,
     scalacOptions in (Compile, doc) ++= Seq("-diagrams"),
     isSnapshot := version.value.toLowerCase.endsWith("snapshot")
   )
