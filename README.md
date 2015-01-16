@@ -1,5 +1,8 @@
 utils
 ====
+
+![Build status by travis-ci](https://travis-ci.org/fehu/util.svg)
+
 *utils, initially separated from agents projects*
 
 **util** package contains utilities for 
