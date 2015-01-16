@@ -1,29 +1,16 @@
-import feh.util.TestReportsCopy
 import sbt._
 import Keys._
-import Dependencies._
-import Resolvers._
 
 object Build extends sbt.Build {
 
-  val ScalaVersion = "2.11.5"
-
-  val MainVersion = "1.0.7-SNAPSHOT"
+  val Version = "1.0.7-SNAPSHOT"
 
   // // // //  settings presets  // // // //
 
   val buildSettings = Defaults.coreDefaultSettings ++ Defaults.defaultConfigs ++ Seq (
     organization  := "feh.util",
-    scalaVersion  := ScalaVersion,
-    scalacOptions in (Compile, doc) ++= Seq("-diagrams"),
-    isSnapshot := version.value.toLowerCase.endsWith("snapshot")
-  )
-
-
-  lazy val testSettings = TestReportsCopy.settings ++ Seq(
-    libraryDependencies += Dependencies.test.specs2,
-    TestReportsCopy.copyTestReportsDir <<= baseDirectory(base => Some(base / "test-reports")),
-    TestReportsCopy.autoAddReportsToGit := true
+    crossScalaVersions := Seq("2.11.5", "2.10.3"),
+    scalacOptions in (Compile, doc) ++= Seq("-diagrams")
   )
 
   object Licenses{
@@ -37,43 +24,13 @@ object Build extends sbt.Build {
 
   // // // // // //  projects  // // // // // //
 
-  lazy val root = Project(
-    id = "root",
-    base = file("."),
-    settings = buildSettings ++ testSettings ++ Seq(
-      version := MainVersion,
-      publishArtifact := false
-    )
-  ).aggregate(util, compiler, shell)
-
   lazy val util = Project(
     id = "util",
     base = file("util"),
     settings = buildSettings ++ licenceSettings ++ Seq(
-      version := MainVersion,
-      libraryDependencies += Apache.ioCommons
+      version := Version,
+      libraryDependencies += "commons-io" % "commons-io" % "2.4" % "compile, runtime"
     )
   )
-
-  lazy val compiler = Project(
-    id = "scala-compiler-utils",
-    base = file("compiler"),
-    settings = buildSettings ++ licenceSettings ++ Seq(
-      version := "0.2-SNAPSHOT",
-      resolvers += Snapshot.sonatype,
-      libraryDependencies <++= scalaVersion {sv =>
-        Seq(scala.compiler _, scalaRefactoring _).map(_(sv))
-      }
-    )
-  ) dependsOn util
-
-  lazy val shell = Project(
-    id = "shell-utils",
-    base = file("shell"),
-    settings = buildSettings ++ testSettings ++ licenceSettings ++ Seq(
-      version := "0.2-SNAPSHOT",
-      libraryDependencies ++= Seq(Apache.ioCommons, akka)
-    )
-  ) dependsOn util
 
 }
