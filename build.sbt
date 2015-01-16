@@ -2,7 +2,7 @@ organization  := "feh.util"
 
 name := "util"
 
-version := "1.0.7-SNAPSHOT"
+version := "1.0.7"
 
 homepage := Some(url("https://github.com/fehu/util"))
 
