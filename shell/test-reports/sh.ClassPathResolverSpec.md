@@ -14,5 +14,5 @@
             unmanaged TODO (*)                                                            
                                                                                                                         
 | ClassPathResolver |
-| Finished in 19 ms |
-| 8 examples, 9 expectations (+1), 0 failure, 0 error (-3), 6 pending (+4) |
+| Finished in 18 ms |
+| 8 examples, 9 expectations, 0 failure, 0 error, 6 pending |

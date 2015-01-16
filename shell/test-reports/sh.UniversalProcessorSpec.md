@@ -40,10 +40,10 @@
                         import feh.util._
         
                 Predefined dependencies:                                                                    
-                        org.scala-lang % scala-library % 2.11.1
-                        feh.util %% util % 1.0.4
+                        org.scala-lang % scala-library % 2.11.5
+                        feh.util %% util % 1.0.6
             
                                                                                                     
 | UniversalProcessor |
-| Finished in 8 ms |
+| Finished in 2 ms |
 | 24 examples, 25 expectations, 0 failure, 0 error |
