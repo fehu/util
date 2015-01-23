@@ -5,6 +5,7 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 import java.awt.Color
 import scala.util.matching.Regex
+import scala.language.implicitConversions
 
 trait Util extends RandomWrappers{
   type I[T] = T => T
@@ -164,7 +165,7 @@ trait Util extends RandomWrappers{
 
   implicit class MutableMapWrapper[K, V](map: mutable.Map[K, V]){
     //    def <<=(key: K)(upd: V => V): Unit  = map(key) = upd(map(key))
-    def <<=(key: K, upd: V => V): Unit  = map(key) = upd(map(key))
+    def <<=(key: K, upd: Option[V] => V): Unit  = map += key -> upd(map.get(key))
   }
 
   implicit class CastWrapper(a: Any){
@@ -203,7 +204,7 @@ trait Util extends RandomWrappers{
 
   
   implicit class ColorWrapper(c: Color){
-    def stringRGB = color.names.get(c).getOrElse(s"[r=${c.getRed},g=${c.getGreen},b=${c.getBlue}]")
+    def stringRGB = color.names.getOrElse(c, s"[r=${c.getRed},g=${c.getGreen},b=${c.getBlue}]")
     def hexRGB = "#%02x%02x%02x" % (c.getRed, c.getGreen, c.getBlue)
   }
 

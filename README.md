@@ -1,7 +1,7 @@
 utils
 ====
 
-![Build status by travis-ci](https://travis-ci.org/fehu/util.svg)
+[![Build Status](https://travis-ci.org/fehu/util.svg?branch=master)](https://travis-ci.org/fehu/util)
 
 *utils, initially separated from agents projects*
 
