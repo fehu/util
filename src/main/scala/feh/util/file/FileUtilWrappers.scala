@@ -3,14 +3,15 @@ package feh.util.file
 import java.io.{FileInputStream, FileOutputStream, File => JFile}
 import feh.util._
 import scala.util.Try
+import scala.language.implicitConversions
 
 trait FileUtilWrappers{
   val File: FileUtils
 
   import File._
 
-  // default string to path wrapper, uses File.separator to split the string
-  implicit def stringToPath(string: String) = Path(string, separatorChar)
+  /** default string to path wrapper, uses File.separator to split the string */
+  implicit def stringToPath(string: String): Path = Path(string, separatorChar)
   
   implicit class FilePath(val path: Path) {
     def file = new JFile(path.toString)

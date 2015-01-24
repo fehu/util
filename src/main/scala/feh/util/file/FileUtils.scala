@@ -11,7 +11,7 @@ import scala.util.matching.Regex
 import scala.util.{Success, Try}
 import scala.collection.JavaConversions._
 
-trait FileUtils extends FileReaders with PathImplicits{
+trait FileUtils {
   fileUtils =>
 
 //  def File = this
@@ -150,13 +150,13 @@ trait Reader[+T]{
 }
 
 trait FileReaders{
-  self: FileUtils =>
+  val File: FileUtils
 
   implicit object ByteArrayReader extends Reader[Array[Byte]]{
-    def read: InputStream => Array[Byte] = readBytesFromStream(_)
+    def read: InputStream => Array[Byte] = File.readBytesFromStream(_)
   }
   implicit object StringReader extends Reader[String]{
-    def read: InputStream => String = is => new String(readBytesFromStream(is))
+    def read: InputStream => String = is => new String(File.readBytesFromStream(is))
   }
 
   implicit object LinesReader extends Reader[Seq[String]]{
@@ -166,8 +166,6 @@ trait FileReaders{
 
 trait FileImplicits{
   self: FileUtilWrappers =>
-
-  implicit def fileBuilderToFileWrapper(b: FileUtils#FileBuilder) = b.dir
 
   implicit object ByPathFileProvider extends ByPathProvider[JFile]{
     def apply(path: Path): JFile = File(path)
