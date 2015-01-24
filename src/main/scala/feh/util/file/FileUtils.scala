@@ -18,6 +18,11 @@ trait FileUtils extends FileUtilWrappers with FileImplicits with FileReaders wit
 
   def apply(path: Path): JFile = new JFile(path.toString)
 
+  def separatorChar = JFile.separatorChar
+  def separator = JFile.separator
+  def pathSeparatorChar = JFile.pathSeparatorChar
+  def pathSeparator = JFile.pathSeparator
+
   def dropExt(filename: String) = {
     val i = filename.lastIndexOf("")
     if(i < 0) filename else filename.substring(0, i)

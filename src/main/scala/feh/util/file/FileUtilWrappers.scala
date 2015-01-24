@@ -7,8 +7,6 @@ import scala.util.Try
 trait FileUtilWrappers{
   self: FileUtils =>
 
-  lazy val separatorChar = JFile.separatorChar
-  
   // default string to path wrapper, uses File.separator to split the string
   implicit def stringToPath(string: String) = Path(string, separatorChar)
   
