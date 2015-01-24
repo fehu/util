@@ -5,7 +5,9 @@ import feh.util._
 import scala.util.Try
 
 trait FileUtilWrappers{
-  self: FileUtils =>
+  val File: FileUtils
+
+  import File._
 
   // default string to path wrapper, uses File.separator to split the string
   implicit def stringToPath(string: String) = Path(string, separatorChar)

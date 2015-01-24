@@ -11,10 +11,10 @@ import scala.util.matching.Regex
 import scala.util.{Success, Try}
 import scala.collection.JavaConversions._
 
-trait FileUtils extends FileUtilWrappers with FileImplicits with FileReaders with PathImplicits{
+trait FileUtils extends FileReaders with PathImplicits{
   fileUtils =>
 
-  def File = this
+//  def File = this
 
   def apply(path: Path): JFile = new JFile(path.toString)
 
@@ -50,7 +50,6 @@ trait FileUtils extends FileUtilWrappers with FileImplicits with FileReaders wit
     def utf8(str: String): FileOutputStream => Unit = write(str.getBytes("UTF-8"))
   }
 
-  implicit def fileBuilderToFileWrapper(b: FileBuilder) = b.dir
   case class FileBuilder(dirPath: Path, isTemporary: Boolean)(val dir: JFile = dirPath.file){
     assert(dir.exists() && dir.isDirectory && dir.canWrite, "directory doesn't exist or isn't accessible")
     if(isTemporary) dir.deleteOnExit()
@@ -166,6 +165,9 @@ trait FileReaders{
 }
 
 trait FileImplicits{
+  self: FileUtilWrappers =>
+
+  implicit def fileBuilderToFileWrapper(b: FileUtils#FileBuilder) = b.dir
 
   implicit object ByPathFileProvider extends ByPathProvider[JFile]{
     def apply(path: Path): JFile = File(path)

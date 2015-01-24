@@ -1,11 +1,10 @@
 package feh.util.build
 
 import feh.util.{RelativePath, Path}
-import feh.util.file.FileUtils
+import feh.util.file._
 import scala.util.Try
-import java.io.File
 
-trait ShellJarExecBuilder extends FileUtils{
+trait ShellJarExecBuilder{
   def scriptFile(jar: Path): Try[File]
 }
 
@@ -25,7 +24,7 @@ object ShellJarExecBuilderApp extends App {
 class BashJarExecBuilder extends ShellJarExecBuilder{
   def scriptFile(jar: Path): Try[File] = {
     val filename = jar.reversed.head
-    val scr = dropExt(filename) + ".sh"
+    val scr = File.dropExt(filename) + ".sh"
     val f = File(jar.back / scr)
     val txt = scriptText(filename)
     Try{
