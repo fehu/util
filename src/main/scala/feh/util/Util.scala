@@ -32,6 +32,28 @@ trait Util extends RandomWrappers{
 
   type Lifted[+T] = () => T
 
+  implicit class Func1ApplyWrapper[A, R](f: A => R){
+    def $(a: A) = f(a)
+  }
+  implicit class Func2ApplyWrapper[A, B, R](f: (A, B) => R){
+    def $(a: A): B => R = f(a, _)
+  }
+  implicit class Func3ApplyWrapper[A, B, C, R](f: (A, B, C) => R){
+    def $(a: A): B => C => R = f.curried(a)
+  }
+  implicit class Func4ApplyWrapper[A, B, C, D, R](f: (A, B, C, D) => R){
+    def $(a: A): B => C => D => R = f.curried(a)
+  }
+  implicit class Func5ApplyWrapper[A, B, C, D, E, R](f: (A, B, C, D, E) => R){
+    def $(a: A): B => C => D => E => R = f.curried(a)
+  }
+
+  implicit def curry[A, R](f: A => R): A => R = f // for uniformity
+  implicit def curry[A, B, R](f: (A, B) => R): A => B => R = f.curried
+  implicit def curry[A, B, C, R](f: (A, B, C) => R): A => B => C => R = f.curried
+  implicit def curry[A, B, C, D, R](f: (A, B, C, D) => R): A => B => C => D => R = f.curried
+  implicit def curry[A, B, C, D, E, R](f: (A, B, C, D, E) => R): A => B => C => D => E => R = f.curried
+
   implicit class PipeWrapper[T](t: => T){
     def pipe[R](f: T => R): R = f(t)
     def |>[R](f: T => R): R = f(t)
