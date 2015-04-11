@@ -1,11 +1,12 @@
 package feh.util
 
+import scala.collection.generic.CanBuildFrom
 import scala.collection.{TraversableLike, mutable}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 import java.awt.Color
 import scala.util.matching.Regex
-import scala.language.implicitConversions
+import scala.language.{implicitConversions, higherKinds}
 
 trait Util extends RandomWrappers{
   type I[T] = T => T
@@ -163,12 +164,12 @@ trait Util extends RandomWrappers{
     }
   }
 
-  implicit class SetWrapper[A](tr: Set[A]){
-    def zipMap[B](f: A => B) = tr.map(t => t -> f(t))
-  }
-
-  implicit class SeqWrapper[A](tr: Seq[A]){
-    def zipMap[B](f: A => B) = tr.map(t => t -> f(t))
+  implicit class ZipWrapper[C[t] <: TraversableOnce[t], A](c: C[A]) {
+    def zipMap[B](f: A => B)(implicit builder: CanBuildFrom[C[A], (A, B), C[(A, B)]]): C[(A, B)] = {
+      val b = builder()
+      b ++= c.map(a => a -> f(a))
+      b.result()
+    }
   }
 
   implicit class TupleSeqWrapper[A, B](tr: Seq[(A, B)]){
@@ -180,13 +181,12 @@ trait Util extends RandomWrappers{
 
   implicit class MapWrapper[A, B](tr: Map[A, B]){
     def mapKeys[R](f: A => R) = tr.map{case (k, v) => f(k)-> v}
-    def zipMap[R](f: ((A, B)) => R) = tr.map{case p@(k, _) => k -> f(p)}
+//    def zipMap[R](f: ((A, B)) => R) = tr.map{case p@(k, _) => k -> f(p)}
   }
 
 
 
   implicit class MutableMapWrapper[K, V](map: mutable.Map[K, V]){
-    //    def <<=(key: K)(upd: V => V): Unit  = map(key) = upd(map(key))
     def <<=(key: K, upd: Option[V] => V): Unit  = map += key -> upd(map.get(key))
   }
 
@@ -194,40 +194,13 @@ trait Util extends RandomWrappers{
     def cast[R] = a.asInstanceOf[R]
   }
 
-  type ->[A, B] = (A, B)
 
   def tuple[A, T1, T2](t1: A => T1, t2: A => T2): A => (T1, T2) = a => (t1(a), t2(a))
 
   implicit class StringWrapper(str: String){
     def %(args: Any*) = str.format(args: _*)
-    def apostrophied = "'" + str + "'"
+    def apostrophised = "'" + str + "'"
     def quoted = "\"" + str + "\""
-  }
-
-  object color{
-    lazy val byName = Map(
-      "black" -> Color.black,
-      "blue" -> Color.blue,
-      "cyan" -> Color.cyan,
-      "darkGray" -> Color.darkGray,
-      "gray" -> Color.gray,
-      "green" -> Color.green,
-      "lightGray" -> Color.lightGray,
-      "magenta" -> Color.magenta,
-      "orange" -> Color.orange,
-      "pink" -> Color.pink,
-      "red" -> Color.red,
-      "white" -> Color.white,
-      "yellow" -> Color.yellow
-    )
-    lazy val names = byName.map(_.swap).toMap
-  }
-
-
-  
-  implicit class ColorWrapper(c: Color){
-    def stringRGB = color.names.getOrElse(c, s"[r=${c.getRed},g=${c.getGreen},b=${c.getBlue}]")
-    def hexRGB = "#%02x%02x%02x" % (c.getRed, c.getGreen, c.getBlue)
   }
 
   implicit class RegexMatcher(reg: Regex) {
