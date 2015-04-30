@@ -179,6 +179,13 @@ trait Util extends RandomWrappers{
     def mapZipIn2[C, R](c: Seq[C])(f: (A, B, C) => R) = tr.zip(c).map{ case ((x, y), z) => f(x, y, z) }
   }
 
+  implicit class TupleStreamWrapper[A, B](tr: Stream[(A, B)]){
+    def mapVals[R](f: B => R) = tr.map{case (k, v) => k-> f(v)}
+    def mapKeys[R](f: A => R) = tr.map{case (k, v) => f(k)-> v}
+    def map2[R](f: (A, B) => R) = tr.map(f.tupled)
+    def mapZipIn2[C, R](c: Seq[C])(f: (A, B, C) => R) = tr.zip(c).map{ case ((x, y), z) => f(x, y, z) }
+  }
+
   implicit class MapWrapper[A, B](tr: Map[A, B]){
     def mapKeys[R](f: A => R) = tr.map{case (k, v) => f(k)-> v}
 //    def zipMap[R](f: ((A, B)) => R) = tr.map{case p@(k, _) => k -> f(p)}
