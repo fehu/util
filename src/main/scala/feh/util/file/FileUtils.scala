@@ -1,9 +1,9 @@
 package feh.util.file
 
-import java.io.{File => JFile, FileOutputStream, InputStream}
+import java.io.{File => JFile, PipedInputStream, PipedOutputStream, FileOutputStream, InputStream}
 import feh.util._
 import feh.util.Path.{EmptyPath, /}
-import org.apache.commons.io.IOUtils
+import org.apache.commons.io.{FileUtils, IOUtils}
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
@@ -48,14 +48,18 @@ trait FileUtils {
 
   object write{
     def utf8(str: String): FileOutputStream => Unit = write(str.getBytes("UTF-8"))
+
+    def large(is: InputStream): FileOutputStream => Unit = IOUtils.copyLarge(is.ensuring(_ != null, "input stream is null"), _)
   }
+
+  def write(is: InputStream): FileOutputStream => Unit = IOUtils.copy(is.ensuring(_ != null, "input stream is null"), _)
 
   case class FileBuilder(dirPath: Path, isTemporary: Boolean)(val dir: JFile = dirPath.file){
     assert(dir.exists() && dir.isDirectory && dir.canWrite, "directory doesn't exist or isn't accessible")
     if(isTemporary) dir.deleteOnExit()
 
-    def createFile(path: Path, `override`: Boolean = isTemporary): Try[JFile] = fileUtils.createFile(path append dirPath)
-    def createDir(path: Path) = path.file.affect(_.mkdirs().ensuring(x => x, s"couldn't create dir $path"))
+    def createFile(path: Path, `override`: Boolean = isTemporary): Try[JFile] = fileUtils.createFile(path prepend dirPath) //(dirPath append path)
+//    def createDir(path: Path) = path.file.affect(_.mkdirs().ensuring(x => x, s"couldn't create dir $path"))
   }
 
   protected[util] def crFile(path: Path) = path.file //.log("creating file " + _).file
@@ -88,7 +92,7 @@ trait FileUtils {
     if(dir.exists()) assert(dir.delete(), "couldn't remove old temp directory")
     dir.mkdir()
     dir.mv(name)
-    FileBuilder(Path.relative(dir.toString), deleteOnExit)(dir)
+    FileBuilder(Path.absolute(dir.toString), deleteOnExit)(dir)
   }
 
   def temporary(path: Path, deleteOnExit: Boolean = true): JFile = path match {

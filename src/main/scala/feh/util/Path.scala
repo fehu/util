@@ -23,8 +23,8 @@ sealed trait Path{
   def backOpt = {
     if(length > 0) Some(back) else None
   }
-  def prepend(next: Path) = cpy(next.reversed ::: this.reversed)
-  def append(next: Path) = cpy(this.reversed ::: next.reversed)
+  def prepend(prev: Path) = prev.cpy(this.reversed ::: prev.reversed)
+  def append(next: Path) = cpy(next.reversed ::: this.reversed)
 
   def name = reversed.head
   def ext = splittedName._2
