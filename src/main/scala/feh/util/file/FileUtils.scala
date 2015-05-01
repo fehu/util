@@ -96,7 +96,7 @@ trait FileUtils {
   }
 
   def temporary(path: Path, deleteOnExit: Boolean = true): JFile = path match {
-    case Path(EmptyPath, name, ext) => JFile.createTempFile(name, ext)
+    case Path(EmptyPath, name, ext) => JFile.createTempFile(name, "." + ext)
     case / / dir / file =>
       val b = temporaryDir(dir, deleteOnExit)
       b.createFile(file, `override` = true).get
