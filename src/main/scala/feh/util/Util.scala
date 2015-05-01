@@ -128,12 +128,6 @@ trait Util extends RandomWrappers{
     }.toMap
   }
 
-  implicit class ConditionalChainingWrapper[T](t: T){
-    def `if`[R](cond: T => Boolean)(then: T => R)(`else`: T => R): R = if(cond(t)) then(t) else `else`(t)
-    def `case`(cond: T => Boolean)(f: T => T): T = if(cond(t)) f(t) else t
-    def `case`(cond: Boolean)(f: T => T): T = if(cond) f(t) else t
-  }
-
   implicit class SideEffectWrapper[T](t: T){
     def $$ (eff: T => Unit): T = {
       eff(t)
@@ -141,6 +135,10 @@ trait Util extends RandomWrappers{
     }
     def $$ (eff: => Unit): T = {
       eff
+      t
+    }
+    def $$_if(cond: T => Boolean, caseTrue: T => Unit): T = {
+      if(cond(t)) caseTrue(t)
       t
     }
   }
