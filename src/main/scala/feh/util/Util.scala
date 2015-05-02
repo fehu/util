@@ -1,5 +1,7 @@
 package feh.util
 
+import feh.util._
+
 import scala.collection.generic.CanBuildFrom
 import scala.collection.{TraversableLike, mutable}
 import scala.concurrent.duration._
@@ -85,6 +87,18 @@ trait Util extends RandomWrappers{
 
     def filterMin[B](f: A => B)(implicit cmp: Ordering[B]): Repr = filter(f, tr.minBy(f) |> f)
   }
+
+  def doUntil[T, R](initial: T, maxTry: Int)(f: T => Either[T, R]): Either[T, R] =
+    Y[(T, Int), Either[T, R]](
+      rec => {
+        case (prev, c) =>
+          f(prev) match {
+            case Left(t) => if (c == maxTry)  Left(t)
+                            else              rec(t -> (c+1))
+            case right   => right
+          }
+      }
+    )(initial -> 0)
 
   def elapsed[R](f: => R): (R, Duration) = {
     val time1 = System.nanoTime()
