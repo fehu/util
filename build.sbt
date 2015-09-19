@@ -10,7 +10,7 @@ licenses += "MIT" -> url("http://opensource.org/licenses/MIT")
 
 // Build Settings
 
-crossScalaVersions := Seq("2.11.5", "2.10.4")
+crossScalaVersions := Seq("2.11.7", "2.11.5", "2.10.4")
 
 scalaVersion := crossScalaVersions.value.head
 
