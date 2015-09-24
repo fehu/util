@@ -108,13 +108,7 @@ trait Util extends RandomWrappers{
     res -> dur
   }
 
-  def tryo[R](f: => R) = scala.util.Try(f) //try Left(f) catch { case th: Throwable => Right(th) }
-
   implicit class OptionWrapper[T](opt: Option[T]){
-    def $(u: T => Unit): Option[T] = {
-      opt foreach u
-      opt
-    }
     def getOrThrow(thr: Throwable): T = opt.getOrElse(throw thr)
     def getOrThrow(msg: String): T = opt.getOrElse(sys.error(msg))
   }
