@@ -64,8 +64,9 @@ trait Util extends RandomWrappers{
 
   implicit class SeqPipeWrapper[C[_], T](t: => C[T]){
     def |>>[Q](opt: Option[T => Q], sel: C[T] => ((T => Q) => C[T])): C[T] = opt.map(sel(t)).getOrElse(t)
-
   }
+
+  def not: Boolean => Boolean = x => !x
 
   def lift[T](t: => T): Lifted[T] = () => t
   def liftUnit(t: => Any): Lifted[Unit] = () => t
