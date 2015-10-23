@@ -68,6 +68,9 @@ trait Util extends RandomWrappers{
 
   def not: Boolean => Boolean = x => !x
 
+
+  def flip[A, B, C](f: A => B => C): B => A => C =   b => a => f(a)(b)
+
   def lift[T](t: => T): Lifted[T] = () => t
   def liftUnit(t: => Any): Lifted[Unit] = () => t
 
