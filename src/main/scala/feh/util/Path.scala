@@ -223,8 +223,10 @@ class AbsolutePath protected[util](val reversed: List[String], val separatorChar
   def absolute = true
   protected def cpy(path: List[String]) = new AbsolutePath(reversed = path, separatorChar)
 
-  override def toString: String = path.mkString(separator, separator, "")
-  def internal = path.mkString("/", "/", "")
+  @deprecated("???")
+  def internal = mkString("/")
+
+  override def mkString(sep: String): String = path.mkString(sep, sep, "")
 
   def toAbsolute = this
   def toRelative = new RelativePath(reversed, separatorChar)
