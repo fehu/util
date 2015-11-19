@@ -228,6 +228,8 @@ class AbsolutePath protected[util](val reversed: List[String], val separatorChar
 
   override def mkString(sep: String): String = path.mkString(sep, sep, "")
 
+  override def toString: String = path.mkString(separator)
+
   def toAbsolute = this
   def toRelative = new RelativePath(reversed, separatorChar)
 
