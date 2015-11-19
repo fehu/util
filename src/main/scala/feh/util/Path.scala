@@ -59,6 +59,8 @@ sealed trait Path{
   def drop(path: Path) =
     if(reversed endsWith path.reversed) RelativePath(reversed.dropRight(path.length).reverse, separatorChar)
     else sys.error(s"$this doesn't start with $path")
+
+  override def toString: String = mkString(separatorChar.toString)
 }
 
 trait PathImplicits{
@@ -202,8 +204,6 @@ class RelativePath protected[util](val reversed: List[String], val separatorChar
 
   def relToCurrentDir = "" + separator + toString
 
-  override def toString: String = path.mkString(separator)
-
   def toAbsolute = new AbsolutePath(reversed, separatorChar)
   def toRelative = this
 
@@ -227,8 +227,6 @@ class AbsolutePath protected[util](val reversed: List[String], val separatorChar
   def internal = mkString("/")
 
   override def mkString(sep: String): String = path.mkString(sep, sep, "")
-
-  override def toString: String = path.mkString(separator)
 
   def toAbsolute = this
   def toRelative = new RelativePath(reversed, separatorChar)
