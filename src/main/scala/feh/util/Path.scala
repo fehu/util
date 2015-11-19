@@ -226,7 +226,10 @@ class AbsolutePath protected[util](val reversed: List[String], val separatorChar
   @deprecated("???")
   def internal = mkString("/")
 
-  override def mkString(sep: String): String = path.mkString(sep, sep, "")
+  override def mkString(sep: String): String = {
+    val fsep = if (separatorChar == '\\') "" else sep
+    path.mkString(fsep, sep, "")
+  }
 
   def toAbsolute = this
   def toRelative = new RelativePath(reversed, separatorChar)
