@@ -204,6 +204,9 @@ class RelativePath protected[util](val reversed: List[String], val separatorChar
 
   def relToCurrentDir = "" + separator + toString
 
+  override def /(next: String): RelativePath = super./(next).asInstanceOf[RelativePath]
+  override def /(next: RelativePath): RelativePath = super./(next).asInstanceOf[RelativePath]
+
   def toAbsolute = new AbsolutePath(reversed, separatorChar)
   def toRelative = this
 
@@ -230,6 +233,8 @@ class AbsolutePath protected[util](val reversed: List[String], val separatorChar
     val fsep = if (separatorChar == '\\') "" else sep
     path.mkString(fsep, sep, "")
   }
+  override def /(next: String): AbsolutePath = super./(next).asInstanceOf[AbsolutePath]
+  override def /(next: RelativePath): AbsolutePath = super./(next).asInstanceOf[AbsolutePath]
 
   def toAbsolute = this
   def toRelative = new RelativePath(reversed, separatorChar)
