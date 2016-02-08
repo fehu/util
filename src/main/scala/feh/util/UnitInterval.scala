@@ -24,6 +24,17 @@ object InUnitInterval{
     assertInUnitInterval(d)
     new InUnitInterval(d)
   }
+
+  class Excluding0 protected (val d: Double) extends AnyVal{
+    override def toString = d.toString
+  }
+
+  object Excluding0{
+    def apply(d: Double): Excluding0 = {
+      assert(d > 0 && d <= 1, s"$d is not in(0, 1] interval")
+      new Excluding0(d)
+    }
+  }
 }
 
 class InUnitInterval protected (val d: Double) extends AnyVal{
