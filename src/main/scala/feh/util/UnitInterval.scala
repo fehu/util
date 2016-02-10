@@ -27,6 +27,8 @@ object InUnitInterval{
 
   class Excluding0 protected (val d: Double) extends AnyVal{
     override def toString = d.toString
+
+    def wholeInterval = InUnitInterval(d)
   }
 
   object Excluding0{
@@ -39,6 +41,8 @@ object InUnitInterval{
 
 class InUnitInterval protected (val d: Double) extends AnyVal{
   override def toString = d.toString
+
+  def excluding0 = InUnitInterval.Excluding0(d)
 }
 
 trait SumInUnitInterval{
